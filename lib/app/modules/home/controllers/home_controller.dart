@@ -29,12 +29,12 @@ class HomeController extends GetxController {
     super.onClose();
   }
 
-  void increment() {
+  void increment(BuildContext context) {
     count.value++;
 
     // Show dialog immediately when adding a new item
     showTextFieldDialog(
-      Get.context!,
+      context,
       index: dragDataList.length,
       title: 'Add New Bubble',
       hintText: 'Type label here',

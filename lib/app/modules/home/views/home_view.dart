@@ -8,10 +8,11 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    Get.put(HomeController(), permanent: true);
     return Scaffold(
       appBar: AppBar(title: const Text('HomeView'), centerTitle: true),
       floatingActionButton: FloatingActionButton(
-        onPressed: controller.increment,
+        onPressed: () => controller.increment(context),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
