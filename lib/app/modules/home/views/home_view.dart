@@ -46,30 +46,29 @@ class HomeView extends GetView<HomeController> {
                 // Use Obx to observe the entire list
                 Obx(
                   () => Stack(
-                    children: List.generate(controller.countList.length, (i) {
+                    children: List.generate(controller.dragDataList.length, (
+                      i,
+                    ) {
                       return Obx(
                         () => Positioned(
-                          bottom: controller.bottomList[i].value,
-                          left: controller.leftList[i].value,
+                          bottom: controller.dragDataList[i].y.value,
+                          left: controller.dragDataList[i].x.value,
                           child: GestureDetector(
                             onPanUpdate: (details) {
-                              controller.leftList[i].value += details.delta.dx;
-                              controller.bottomList[i].value -=
-                                  details.delta.dy;
+                              controller.updatePosition(
+                                i,
+                                details.delta.dx,
+                                details.delta.dy,
+                              );
                             },
                             onTap: () {
-                              controller
-                                  .showTextFieldDialog(
-                                    context,
-                                    title: 'Enter Text for Bubble ${i + 1}',
-                                    hintText: 'Type label here',
-                                  )
-                                  .then((value) {
-                                    if (value != null) {
-                                      controller.updateLabel(i, value);
-                                    }
-                                  });
-                              controller.getLabel(i);
+                              controller.showTextFieldDialog(
+                                context,
+                                index: i,
+                                title: 'Edit Bubble ${i + 1}',
+                                hintText: 'Type label here',
+                                countHint: 'Enter number',
+                              );
                             },
                             onLongPress: () {
                               controller.removeItem(i);
@@ -82,15 +81,17 @@ class HomeView extends GetView<HomeController> {
                                 color: Colors.grey.withOpacity(0.2),
                               ),
                               child: Center(
-                                child: Text(
-                                  (i + 1)
-                                      .toString(), // Show the bubble number (i+1)
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
+                                child: Obx(() {
+                                  final item = controller.dragDataList[i];
+                                  return Text(
+                                    item.count.value.toString(),
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  );
+                                }),
                               ),
                             ),
                           ),

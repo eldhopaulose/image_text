@@ -1,83 +1,176 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'drag_data_model.dart';
 
 class HomeController extends GetxController {
-  // Your existing code...
-  RxList<RxDouble> bottomList = [581.0.obs].obs;
-  RxList<RxDouble> leftList = [317.0.obs].obs;
-  RxList<RxInt> countList = [0.obs].obs;
-  RxInt count = 0.obs;
+  // Main list to store all drag items
+  RxList<DragDataModel> dragDataList = <DragDataModel>[].obs;
 
-  // Add a new RxList to store text labels
-  RxList<RxString> labelList = [RxString('')].obs;
+  // Counter for new items
+  RxInt count = 1.obs;
 
-  // Your existing methods...
+  @override
+  void onInit() {
+    super.onInit();
+    // Initialize with first item
+    dragDataList.add(
+      DragDataModel(title: '', count: count.value, x: 317.0, y: 581.0),
+    );
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
+  }
 
   void increment() {
     count.value++;
-    countList.add(RxInt(count.value));
-    bottomList.add(581.0.obs);
-    leftList.add(317.0.obs);
-    labelList.add(RxString('')); // Add empty label for new bubble
+
+    // Show dialog immediately when adding a new item
+    showTextFieldDialog(
+      Get.context!,
+      index: dragDataList.length,
+      title: 'Add New Bubble',
+      hintText: 'Type label here',
+      countHint: 'Enter number',
+      initialText: '',
+      initialCount: count.value.toString(),
+    ).then((result) {
+      if (result != null && result['confirmed'] == true) {
+        // Add a new drag item with the values from dialog
+        dragDataList.add(
+          DragDataModel(
+            title: result['text'] ?? '',
+            count: int.tryParse(result['count'] ?? '') ?? count.value,
+            x: 317.0,
+            y: 581.0,
+          ),
+        );
+      } else {
+        // If canceled, still add a default item
+        dragDataList.add(
+          DragDataModel(title: '', count: count.value, x: 317.0, y: 581.0),
+        );
+      }
+    });
   }
 
-  void getLabel(int index) {
-    if (index < labelList.length) {
-      String data = labelList[index].value;
-      log(data);
+  String getLabel(int index) {
+    if (index < dragDataList.length) {
+      String data = dragDataList[index].title.value;
+      log('Label at index $index: $data');
+      return data;
     }
+    return '';
   }
 
   void removeItem(int index) {
-    if (index < bottomList.length &&
-        index < leftList.length &&
-        index < countList.length &&
-        index < labelList.length) {
-      bottomList.removeAt(index);
-      leftList.removeAt(index);
-      countList.removeAt(index);
-      labelList.removeAt(index);
+    if (index < dragDataList.length) {
+      dragDataList.removeAt(index);
     }
   }
 
-  // Add a method to update the label
-  void updateLabel(int index, String newLabel) {
-    if (index < labelList.length) {
-      labelList[index].value = newLabel;
+  void updateLabel(int index, String newLabel, int newCount) {
+    if (index < dragDataList.length) {
+      dragDataList[index].title.value = newLabel;
+      dragDataList[index].count.value = newCount;
+      log('Updated bubble $index - Label: $newLabel, Count: $newCount');
     }
   }
 
-  Future<String?> showTextFieldDialog(
+  void updatePosition(int index, double dx, double dy) {
+    if (index < dragDataList.length) {
+      dragDataList[index].x.value += dx;
+      dragDataList[index].y.value -= dy;
+    }
+  }
+
+  // Modified to return a Map with both values
+  Future<Map<String, dynamic>?> showTextFieldDialog(
     BuildContext context, {
+    required int index,
     String title = 'Enter Text',
-    String hintText = '',
+    String hintText = 'Enter text',
+    String countHint = 'Enter number',
+    String initialText = '',
+    String initialCount = '0',
   }) {
-    final TextEditingController textController = TextEditingController();
+    // Pre-fill with existing values if editing an existing item
+    String textValue = initialText;
+    String countValue = initialCount;
 
-    return showDialog<String>(
+    if (index < dragDataList.length) {
+      textValue = dragDataList[index].title.value;
+      countValue = dragDataList[index].count.value.toString();
+    }
+
+    final TextEditingController textController = TextEditingController(
+      text: textValue,
+    );
+    final TextEditingController countController = TextEditingController(
+      text: countValue,
+    );
+
+    return showDialog<Map<String, dynamic>>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(title),
-          content: TextField(
-            controller: textController,
-            decoration: InputDecoration(hintText: hintText),
-            autofocus: true,
+          content: Container(
+            width: 300,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: textController,
+                  decoration: InputDecoration(
+                    labelText: 'Label',
+                    hintText: hintText,
+                  ),
+                  autofocus: true,
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: countController,
+                  decoration: InputDecoration(
+                    labelText: 'Count',
+                    hintText: countHint,
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ),
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Cancel
+                Navigator.of(context).pop({'confirmed': false});
               },
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(
-                  context,
-                ).pop(textController.text); // OK with text value
+                // If it's an existing item, update it directly
+                if (index < dragDataList.length) {
+                  updateLabel(
+                    index,
+                    textController.text,
+                    int.tryParse(countController.text) ?? 0,
+                  );
+                }
+
+                // Return both values
+                Navigator.of(context).pop({
+                  'confirmed': true,
+                  'text': textController.text,
+                  'count': countController.text,
+                });
               },
               child: const Text('OK'),
             ),
