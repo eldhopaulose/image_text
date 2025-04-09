@@ -1,12 +1,18 @@
 import 'dart:developer';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:widgets_to_image/widgets_to_image.dart';
+import '../views/home_view.dart';
 import 'drag_data_model.dart';
 
 class HomeController extends GetxController {
   // Main list to store all drag items
   RxList<DragDataModel> dragDataList = <DragDataModel>[].obs;
 
+  WidgetsToImageController widgetsToImageController =
+      WidgetsToImageController();
+  Uint8List? bytes;
   // Counter for new items
   RxInt count = 1.obs;
 
@@ -17,6 +23,7 @@ class HomeController extends GetxController {
     dragDataList.add(
       DragDataModel(title: '', count: count.value, x: 317.0, y: 581.0),
     );
+    widgetsToImageController = WidgetsToImageController();
   }
 
   @override
@@ -88,6 +95,20 @@ class HomeController extends GetxController {
     if (index < dragDataList.length) {
       dragDataList[index].x.value += dx;
       dragDataList[index].y.value -= dy;
+    }
+  }
+
+  Future<void> widgetImage() async {
+    try {
+      bytes = await widgetsToImageController.capture();
+      if (bytes != null) {
+        // Handle successful capture here
+        log('Image captured successfully, size: ${bytes!.length} bytes');
+      } else {
+        log('Image capture returned null');
+      }
+    } catch (e) {
+      log('Error capturing image: $e');
     }
   }
 

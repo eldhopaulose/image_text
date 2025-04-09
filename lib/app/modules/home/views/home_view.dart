@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:widgets_to_image/widgets_to_image.dart';
 import '../../detail_view/views/detail_view_view.dart';
 import '../controllers/home_controller.dart';
 
@@ -18,7 +19,21 @@ class HomeView extends GetView<HomeController> {
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
-      body: Column(
+      body: SketchWidget(controller: controller),
+    );
+  }
+}
+
+class SketchWidget extends StatelessWidget {
+  const SketchWidget({super.key, required this.controller});
+
+  final HomeController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return WidgetsToImage(
+      controller: controller.widgetsToImageController,
+      child: Column(
         children: [
           Expanded(
             child: Stack(
@@ -125,6 +140,27 @@ class HomeView extends GetView<HomeController> {
                       );
                     },
                     child: const Text('Go to Detail View'),
+                  ),
+                ),
+                Positioned(
+                  top: 20,
+                  left: 20,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                    ),
+                    onPressed: () {
+                      controller.widgetImage();
+                    },
+                    child: const Text('Image to bytes'),
                   ),
                 ),
               ],
