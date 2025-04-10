@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
-import '../views/home_view.dart';
 import 'drag_data_model.dart';
 
 class HomeController extends GetxController {
@@ -15,6 +14,7 @@ class HomeController extends GetxController {
   Uint8List? bytes;
   // Counter for new items
   RxInt count = 1.obs;
+  RxBool isLoading = false.obs;
 
   @override
   void onInit() {
@@ -100,6 +100,7 @@ class HomeController extends GetxController {
 
   Future<void> widgetImage() async {
     try {
+      isLoading.value = true;
       bytes = await widgetsToImageController.capture();
       if (bytes != null) {
         // Handle successful capture here
@@ -109,6 +110,8 @@ class HomeController extends GetxController {
       }
     } catch (e) {
       log('Error capturing image: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 

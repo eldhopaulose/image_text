@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -121,46 +123,45 @@ class SketchWidget extends StatelessWidget {
                 Positioned(
                   bottom: 20,
                   left: 20,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  child: Obx(
+                    () => ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
+                      onPressed: () {
+                        controller
+                            .widgetImage()
+                            .then((_) {
+                              if (controller.bytes == null) {
+                                return;
+                              }
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (_) => DetailViewView(),
+                                ),
+                              );
+                            })
+                            .catchError((e) {
+                              log(e);
+                            });
+                      },
+                      child:
+                          controller.isLoading.value
+                              ? const CupertinoActivityIndicator(
+                                color: Colors.black,
+                                radius: 15,
+                              )
+                              : const Text('Go to Detail View'),
                     ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(builder: (_) => DetailViewView()),
-                      );
-                    },
-                    child: const Text('Go to Detail View'),
-                  ),
-                ),
-                Positioned(
-                  top: 20,
-                  left: 20,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                    ),
-                    onPressed: () {
-                      controller.widgetImage();
-                    },
-                    child: const Text('Image to bytes'),
                   ),
                 ),
               ],

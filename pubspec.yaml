@@ -37,6 +37,7 @@ dependencies:
   get: ^4.7.2
   cached_network_image: ^3.4.1
   widgets_to_image: ^1.0.0
+  pdf: ^3.11.3
 
 dev_dependencies:
   flutter_test:
