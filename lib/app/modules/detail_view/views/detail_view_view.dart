@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../home/controllers/home_controller.dart';
@@ -8,6 +9,19 @@ class DetailViewView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('DetailViewView'), centerTitle: true),
+      floatingActionButton: Obx(
+        () => FloatingActionButton(
+          onPressed: () => controller.generatePDF(),
+          tooltip: 'Gerate PDF',
+          child:
+              controller.isGeratePdfLoading.value
+                  ? const CupertinoActivityIndicator(
+                    color: Colors.black,
+                    radius: 15,
+                  )
+                  : const Icon(Icons.document_scanner_outlined),
+        ),
+      ),
       body: Column(
         children: [
           Expanded(

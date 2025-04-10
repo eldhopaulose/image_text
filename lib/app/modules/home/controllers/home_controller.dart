@@ -1,9 +1,14 @@
 import 'dart:developer';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:printing/printing.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
 import 'drag_data_model.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class HomeController extends GetxController {
   // Main list to store all drag items
@@ -15,6 +20,7 @@ class HomeController extends GetxController {
   // Counter for new items
   RxInt count = 1.obs;
   RxBool isLoading = false.obs;
+  RxBool isGeratePdfLoading = false.obs;
 
   @override
   void onInit() {
@@ -112,6 +118,69 @@ class HomeController extends GetxController {
       log('Error capturing image: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<File?> generatePDF() async {
+    isGeratePdfLoading.value = true;
+
+    File? pdfFile;
+    try {
+      // First capture the widget image
+      await widgetImage();
+
+      // Create PDF document
+      final pdf = pw.Document();
+
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              children: [
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children:
+                          dragDataList.map((element) {
+                            return pw.Text(
+                              "${element.count.value.toString()} - ${element.title.value}",
+                              style: pw.TextStyle(fontSize: 18.0),
+                            );
+                          }).toList(),
+                    ),
+                    bytes != null
+                        ? pw.Image(pw.MemoryImage(bytes!), width: 200)
+                        : pw.Container(),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
+      final pdfBytes = await pdf.save();
+
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdfBytes,
+        name: 'Teresa Skeatch Document',
+      );
+
+      final tempDir = await getTemporaryDirectory();
+      pdfFile = File('${tempDir.path}/teresa_skeatch.pdf');
+      await pdfFile.writeAsBytes(pdfBytes);
+
+      log('PDF saved to: ${pdfFile.path}');
+
+      return pdfFile;
+    } catch (e) {
+      log('Error generating PDF: $e');
+      return null;
+    } finally {
+      isGeratePdfLoading.value = false;
     }
   }
 

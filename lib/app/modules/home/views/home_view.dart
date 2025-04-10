@@ -21,7 +21,50 @@ class HomeView extends GetView<HomeController> {
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
-      body: SketchWidget(controller: controller),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: SketchWidget(controller: controller)),
+          Obx(
+            () => ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+              ),
+              onPressed: () {
+                controller
+                    .widgetImage()
+                    .then((_) {
+                      if (controller.bytes == null) {
+                        return;
+                      }
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(builder: (_) => DetailViewView()),
+                      );
+                    })
+                    .catchError((e) {
+                      log(e);
+                    });
+              },
+              child:
+                  controller.isLoading.value
+                      ? const CupertinoActivityIndicator(
+                        color: Colors.black,
+                        radius: 15,
+                      )
+                      : const Text('Go to Detail View'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -118,50 +161,6 @@ class SketchWidget extends StatelessWidget {
                         ),
                       );
                     }),
-                  ),
-                ),
-                Positioned(
-                  bottom: 20,
-                  left: 20,
-                  child: Obx(
-                    () => ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                      ),
-                      onPressed: () {
-                        controller
-                            .widgetImage()
-                            .then((_) {
-                              if (controller.bytes == null) {
-                                return;
-                              }
-                              Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                  builder: (_) => DetailViewView(),
-                                ),
-                              );
-                            })
-                            .catchError((e) {
-                              log(e);
-                            });
-                      },
-                      child:
-                          controller.isLoading.value
-                              ? const CupertinoActivityIndicator(
-                                color: Colors.black,
-                                radius: 15,
-                              )
-                              : const Text('Go to Detail View'),
-                    ),
                   ),
                 ),
               ],
