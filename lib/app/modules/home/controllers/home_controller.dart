@@ -9,6 +9,7 @@ import 'package:widgets_to_image/widgets_to_image.dart';
 import 'drag_data_model.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'dart:math' as math;
 
 class HomeController extends GetxController {
   // Main list to store all drag items
@@ -53,6 +54,33 @@ class HomeController extends GetxController {
     super.onClose();
   }
 
+  void updateArrowRotation(int index, double dx) {
+    if (index < dragDataList.length) {
+      // Convert horizontal movement to rotation in radians
+      // The sensitivity factor (0.01) controls how responsive the rotation is
+      final sensitivity = 0.01;
+      final newRotation =
+          dragDataList[index].rotation.value + (dx * sensitivity);
+
+      // Keep rotation within 0 to 2π range for cleaner math
+      dragDataList[index].rotation.value = newRotation % (2 * math.pi);
+    }
+  }
+
+  // Updated arrow size method
+  void updateArrowSize(int index, double dWidth, double dHeight) {
+    if (index < dragDataList.length) {
+      // Update width (with minimum size to prevent arrow from getting too small)
+      double newWidth = dragDataList[index].width.value + dWidth;
+      dragDataList[index].width.value = newWidth > 100 ? newWidth : 100;
+
+      // Update height (with minimum size)
+      double newHeight = dragDataList[index].height.value + dHeight;
+      dragDataList[index].height.value = newHeight > 50 ? newHeight : 50;
+    }
+  }
+
+  // Updated increment method
   void increment(BuildContext context) {
     count.value++;
 
@@ -60,7 +88,7 @@ class HomeController extends GetxController {
     showTextFieldDialog(
       context,
       index: dragDataList.length,
-      title: 'Add New Bubble',
+      title: 'Add New Arrow',
       hintText: 'Type label here',
       countHint: 'Enter number',
       initialText: '',
@@ -74,12 +102,23 @@ class HomeController extends GetxController {
             count: int.tryParse(result['count'] ?? '') ?? count.value,
             x: 317.0,
             y: 581.0,
+            width: 300.0, // Default width
+            height: 80.0, // Default height
+            rotation: 0.0, // Start with no rotation
           ),
         );
       } else {
         // If canceled, still add a default item
         dragDataList.add(
-          DragDataModel(title: '', count: count.value, x: 317.0, y: 581.0),
+          DragDataModel(
+            title: '',
+            count: count.value,
+            x: 317.0,
+            y: 581.0,
+            width: 300.0, // Default width
+            height: 80.0, // Default height
+            rotation: 0.0, // Start with no rotation
+          ),
         );
       }
     });

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
 import '../../detail_view/views/detail_view_view.dart';
+import '../controllers/ArrowPainter.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -116,47 +117,108 @@ class SketchWidget extends StatelessWidget {
                         () => Positioned(
                           bottom: controller.dragDataList[i].y.value,
                           left: controller.dragDataList[i].x.value,
-                          child: GestureDetector(
-                            onPanUpdate: (details) {
-                              controller.updatePosition(
-                                i,
-                                details.delta.dx,
-                                details.delta.dy,
-                              );
-                            },
-                            onTap: () {
-                              controller.showTextFieldDialog(
-                                context,
-                                index: i,
-                                title: 'Edit Bubble ${i + 1}',
-                                hintText: 'Type label here',
-                                countHint: 'Enter number',
-                              );
-                            },
-                            onLongPress: () {
-                              controller.removeItem(i);
-                            },
-                            child: Container(
-                              width: 30,
-                              height: 30,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.grey.withOpacity(0.2),
-                              ),
-                              child: Center(
-                                child: Obx(() {
-                                  final item = controller.dragDataList[i];
-                                  return Text(
-                                    item.count.value.toString(),
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w400,
-                                    ),
+                          child: Stack(
+                            children: [
+                              // The Arrow with text
+                              GestureDetector(
+                                onPanUpdate: (details) {
+                                  controller.updatePosition(
+                                    i,
+                                    details.delta.dx,
+                                    details.delta.dy,
                                   );
-                                }),
+                                },
+                                onTap: () {
+                                  controller.showTextFieldDialog(
+                                    context,
+                                    index: i,
+                                    title: 'Edit Arrow ${i + 1}',
+                                    hintText: 'Type label here',
+                                    countHint: 'Enter number',
+                                  );
+                                },
+                                onLongPress: () {
+                                  controller.removeItem(i);
+                                },
+                                child: CustomPaint(
+                                  painter: ArrowPainter(
+                                    text:
+                                        controller.dragDataList[i].title.value,
+                                    count:
+                                        controller.dragDataList[i].count.value,
+                                    color: Colors.black,
+                                    rotation:
+                                        controller
+                                            .dragDataList[i]
+                                            .rotation
+                                            .value,
+                                  ),
+                                  size: Size(
+                                    controller.dragDataList[i].width.value,
+                                    controller.dragDataList[i].height.value,
+                                  ),
+                                ),
                               ),
-                            ),
+
+                              // Rotation handle (positioned at the top)
+                              Positioned(
+                                top: 0,
+                                left:
+                                    controller.dragDataList[i].width.value / 2 -
+                                    10,
+                                child: GestureDetector(
+                                  onPanUpdate: (details) {
+                                    // Calculate rotation based on drag
+                                    controller.updateArrowRotation(
+                                      i,
+                                      details.delta.dx,
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 20,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.withOpacity(0.7),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.rotate_right,
+                                      size: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              // Resize handle (positioned at the bottom-right)
+                              Positioned(
+                                right: 0,
+                                bottom: 0,
+                                child: GestureDetector(
+                                  onPanUpdate: (details) {
+                                    // Update width and height based on drag
+                                    controller.updateArrowSize(
+                                      i,
+                                      details.delta.dx,
+                                      details.delta.dy,
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 20,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.withOpacity(0.7),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.open_with,
+                                      size: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       );
