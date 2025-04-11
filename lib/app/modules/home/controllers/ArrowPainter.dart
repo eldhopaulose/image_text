@@ -72,13 +72,11 @@ class ArrowPainter extends CustomPainter {
 
     canvas.drawPath(path, paint..style = PaintingStyle.fill);
 
-    // Draw text if provided - positioned in front of the arrow
-    if (text.isNotEmpty) {
-      // Restore canvas state for text
-      canvas.restore();
-      // Save again for potential further operations
-      canvas.save();
+    // Restore after drawing the arrow
+    canvas.restore();
 
+    // Draw text if provided - positioned offset to the side-front of the arrow
+    if (text.isNotEmpty) {
       // Creates a text span with the combined text and count
       final textSpan = TextSpan(
         text: '$text${count > 0 ? ' ($count)' : ''}',
@@ -86,9 +84,7 @@ class ArrowPainter extends CustomPainter {
           color: color,
           fontSize: 16.0,
           fontWeight: FontWeight.bold,
-          backgroundColor: Colors.white.withOpacity(
-            0.7,
-          ), // Semi-transparent background for better visibility
+          backgroundColor: Colors.white.withOpacity(0.7),
         ),
       );
 
@@ -100,22 +96,24 @@ class ArrowPainter extends CustomPainter {
 
       textPainter.layout();
 
-      // Calculate position based on rotation
-      double textX, textY;
+      // Calculate position offset to the side-front of the arrow direction
+      // Adjust these values to change text position
+      final offsetDistance = size.width * 0.15; // Distance from center
+      final offsetAngle =
+          rotation + math.pi / 6; // 30 degrees offset from arrow direction
 
-      // Adjust text position based on rotation angle
-      // This positions the text in front of the arrow direction
-      final rotatedCenterX = centerX + 40 * math.cos(rotation);
-      final rotatedCenterY = centerY + 40 * math.sin(rotation);
-
-      textX = rotatedCenterX - textPainter.width / 2;
-      textY = rotatedCenterY - textPainter.height / 2;
+      // Calculate offset position
+      final textX =
+          centerX +
+          offsetDistance * math.cos(offsetAngle) -
+          textPainter.width / 2;
+      final textY =
+          centerY +
+          offsetDistance * math.sin(offsetAngle) -
+          textPainter.height / 2;
 
       // Draw text
       textPainter.paint(canvas, Offset(textX, textY));
-    } else {
-      // Restore if no text is drawn
-      canvas.restore();
     }
   }
 
