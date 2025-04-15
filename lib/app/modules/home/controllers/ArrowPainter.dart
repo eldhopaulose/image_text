@@ -22,8 +22,7 @@ class ArrowPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Save the current canvas state
     canvas.save();
-
-    // Rotate the canvas around the center point
+    // Rotation setup
     final centerX = size.width / 2;
     final centerY = size.height / 2;
     canvas.translate(centerX, centerY);
@@ -57,7 +56,6 @@ class ArrowPainter extends CustomPainter {
     // Draw the arrowhead
     final arrowSize = size.width * 0.1; // Scale arrowhead based on width
     final arrowAngle = 25 * math.pi / 180;
-
     final path = Path();
     path.moveTo(
       p2.dx - arrowSize * math.cos(angle - arrowAngle),
@@ -69,52 +67,69 @@ class ArrowPainter extends CustomPainter {
       p2.dy - arrowSize * math.sin(angle + arrowAngle),
     );
     path.close();
-
     canvas.drawPath(path, paint..style = PaintingStyle.fill);
 
-    // Restore after drawing the arrow
-    canvas.restore();
-
-    // Draw text if provided - positioned offset to the side-front of the arrow
+    // Draw text if provided - with the arrow rotation taken into account
     if (text.isNotEmpty) {
-      // Creates a text span with the combined text and count
+      // Set a maximum width for the text
+      final maxTextWidth = size.width * 0.4;
+
+      // Create a text span for the text
       final textSpan = TextSpan(
-        text: '$text${count > 0 ? ' ($count)' : ''}',
+        text: text,
         style: TextStyle(
           color: color,
           fontSize: 16.0,
           fontWeight: FontWeight.bold,
-          backgroundColor: Colors.white.withOpacity(0.7),
         ),
       );
 
+      // Create a text painter with word wrapping enabled
       final textPainter = TextPainter(
         text: textSpan,
         textDirection: TextDirection.ltr,
         textAlign: TextAlign.center,
+        maxLines: 10,
+        ellipsis: '...',
       );
 
-      textPainter.layout();
+      // Important: Set width constraint to enable wrapping
+      textPainter.layout(maxWidth: maxTextWidth);
 
-      // Calculate position offset to the side-front of the arrow direction
-      // Adjust these values to change text position
-      final offsetDistance = size.width * 0.15; // Distance from center
-      final offsetAngle =
-          rotation + math.pi / 6; // 30 degrees offset from arrow direction
+      // Calculate position for the text above the middle of the arrow
+      final arrowMiddleX = (p1.dx + p2.dx) / 2;
+      final arrowMiddleY = (p1.dy + p2.dy) / 2;
 
-      // Calculate offset position
-      final textX =
-          centerX +
-          offsetDistance * math.cos(offsetAngle) -
-          textPainter.width / 2;
+      // Position text above the arrow
+      final textX = arrowMiddleX - (textPainter.width / 2);
       final textY =
-          centerY +
-          offsetDistance * math.sin(offsetAngle) -
-          textPainter.height / 2;
+          arrowMiddleY - textPainter.height - 20; // 20 pixels above arrow
+
+      // Draw background for better readability
+      final padding = 8.0;
+      final backgroundRect = Rect.fromLTWH(
+        textX - padding,
+        textY - padding,
+        textPainter.width + (padding * 2),
+        textPainter.height + (padding * 2),
+      );
+
+      final backgroundPaint =
+          Paint()
+            ..color = Colors.white.withOpacity(0.7)
+            ..style = PaintingStyle.fill;
+
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(backgroundRect, Radius.circular(4.0)),
+        backgroundPaint,
+      );
 
       // Draw text
       textPainter.paint(canvas, Offset(textX, textY));
     }
+
+    // Restore canvas state
+    canvas.restore();
   }
 
   @override
