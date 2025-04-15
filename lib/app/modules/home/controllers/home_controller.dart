@@ -23,6 +23,9 @@ class HomeController extends GetxController {
   RxBool isLoading = false.obs;
   RxBool isGeratePdfLoading = false.obs;
 
+  // Flag to show/hide control buttons
+  RxBool showControls = true.obs;
+
   // Add a controller and variable for notes
   final TextEditingController noteController = TextEditingController();
   RxString notes = ''.obs;
@@ -54,6 +57,11 @@ class HomeController extends GetxController {
     // Dispose controllers to prevent memory leaks
     noteController.dispose();
     super.onClose();
+  }
+
+  // Toggle control buttons visibility
+  void toggleControls() {
+    showControls.value = !showControls.value;
   }
 
   void updateArrowRotation(int index, double dx) {
@@ -113,7 +121,18 @@ class HomeController extends GetxController {
   Future<void> widgetImage() async {
     try {
       isLoading.value = true;
+      // Hide controls temporarily for capturing clean image
+      bool previousState = showControls.value;
+      showControls.value = false;
+
+      // Wait a moment for UI to refresh before capture
+      await Future.delayed(Duration(milliseconds: 100));
+
       bytes = await widgetsToImageController.capture();
+
+      // Restore previous controls state
+      showControls.value = previousState;
+
       if (bytes != null) {
         // Handle successful capture here
         log('Image captured successfully, size: ${bytes!.length} bytes');

@@ -25,55 +25,78 @@ class HomeView extends GetView<HomeController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: SketchWidget(controller: controller)),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // Button to add notes
-              ElevatedButton.icon(
-                onPressed: () => controller.showNotesDialog(context),
-                icon: const Icon(Icons.note_add),
-                label: const Text('Add Notes'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Button to toggle controls visibility
+                Obx(
+                  () => ElevatedButton.icon(
+                    onPressed: controller.toggleControls,
+                    icon: Icon(
+                      controller.showControls.value
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                    label: Text(
+                      controller.showControls.value
+                          ? 'Hide Controls'
+                          : 'Show Controls',
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.amber,
+                      foregroundColor: Colors.black,
+                    ),
+                  ),
                 ),
-              ),
 
-              // Button to print
-              Obx(
-                () => ElevatedButton.icon(
+                // Button to add notes
+                ElevatedButton.icon(
+                  onPressed: () => controller.showNotesDialog(context),
+                  icon: const Icon(Icons.note_add),
+                  label: const Text('Add Notes'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
                   ),
-                  onPressed:
-                      controller.isGeratePdfLoading.value
-                          ? null
-                          : () => controller.generatePDF(),
-                  icon: const Icon(Icons.print),
-                  label:
-                      controller.isGeratePdfLoading.value
-                          ? const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              Text('Printing...'),
-                            ],
-                          )
-                          : const Text('Print Document'),
                 ),
-              ),
-            ],
+
+                // Button to print
+                Obx(
+                  () => ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed:
+                        controller.isGeratePdfLoading.value
+                            ? null
+                            : () => controller.generatePDF(),
+                    icon: const Icon(Icons.print),
+                    label:
+                        controller.isGeratePdfLoading.value
+                            ? const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Text('Printing...'),
+                              ],
+                            )
+                            : const Text('Print Document'),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 10),
         ],
       ),
     );
@@ -150,63 +173,67 @@ class SketchWidget extends StatelessWidget {
                             ),
                           ),
 
-                          // Rotation handle (positioned at the top)
-                          Positioned(
-                            top: 0,
-                            left:
-                                controller.dragDataList[i].width.value / 2 - 10,
-                            child: GestureDetector(
-                              onPanUpdate: (details) {
-                                // Calculate rotation based on drag
-                                controller.updateArrowRotation(
-                                  i,
-                                  details.delta.dx,
-                                );
-                              },
-                              child: Container(
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  color: Colors.green.withOpacity(0.7),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.rotate_right,
-                                  size: 16,
-                                  color: Colors.white,
+                          // Only show controls if the flag is true
+                          if (controller.showControls.value) ...[
+                            // Rotation handle (positioned at the top)
+                            Positioned(
+                              top: 0,
+                              left:
+                                  controller.dragDataList[i].width.value / 2 -
+                                  10,
+                              child: GestureDetector(
+                                onPanUpdate: (details) {
+                                  // Calculate rotation based on drag
+                                  controller.updateArrowRotation(
+                                    i,
+                                    details.delta.dx,
+                                  );
+                                },
+                                child: Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.withOpacity(0.7),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.rotate_right,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
 
-                          // Resize handle (positioned at the bottom-right)
-                          Positioned(
-                            right: 0,
-                            bottom: 0,
-                            child: GestureDetector(
-                              onPanUpdate: (details) {
-                                // Update width and height based on drag
-                                controller.updateArrowSize(
-                                  i,
-                                  details.delta.dx,
-                                  details.delta.dy,
-                                );
-                              },
-                              child: Container(
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.withOpacity(0.7),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.open_with,
-                                  size: 16,
-                                  color: Colors.white,
+                            // Resize handle (positioned at the bottom-right)
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: GestureDetector(
+                                onPanUpdate: (details) {
+                                  // Update width and height based on drag
+                                  controller.updateArrowSize(
+                                    i,
+                                    details.delta.dx,
+                                    details.delta.dy,
+                                  );
+                                },
+                                child: Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.withOpacity(0.7),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.open_with,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
