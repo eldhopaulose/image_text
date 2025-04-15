@@ -156,53 +156,53 @@ class HomeController extends GetxController {
       // Create PDF document
       final pdf = pw.Document();
 
-      // Create a simple page layout
+      // Add the image page first - full page
+      if (bytes != null) {
+        pdf.addPage(
+          pw.Page(
+            pageFormat: PdfPageFormat.a4,
+            build: (pw.Context context) {
+              return pw.Center(
+                child: pw.Image(
+                  pw.MemoryImage(bytes!),
+                  width: PdfPageFormat.a4.availableWidth,
+                  height: PdfPageFormat.a4.availableHeight,
+                  fit: pw.BoxFit.contain,
+                ),
+              );
+            },
+          ),
+        );
+      }
+
+      // Add notes on a separate page
       pdf.addPage(
-        pw.MultiPage(
+        pw.Page(
           pageFormat: PdfPageFormat.a4,
           margin: const pw.EdgeInsets.all(32),
           build: (pw.Context context) {
-            // List to hold all widgets that will be rendered in the document
-            List<pw.Widget> pageWidgets = [];
-
-            // Add the captured image
-            if (bytes != null) {
-              pageWidgets.add(
-                pw.Center(
-                  child: pw.Image(
-                    pw.MemoryImage(bytes!),
-                    width: 350,
-                    height: 300,
-                    fit: pw.BoxFit.contain,
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Header(level: 1, text: 'Notes'),
+                pw.SizedBox(height: 20),
+                pw.Container(
+                  height: notes.value.isNotEmpty ? null : 500,
+                  width: double.infinity,
+                  padding: const pw.EdgeInsets.all(10),
+                  decoration: pw.BoxDecoration(
+                    border: pw.Border.all(color: PdfColors.grey400),
+                    borderRadius: const pw.BorderRadius.all(
+                      pw.Radius.circular(5),
+                    ),
                   ),
+                  child:
+                      notes.value.isNotEmpty
+                          ? pw.Text(notes.value)
+                          : pw.Container(),
                 ),
-              );
-            }
-
-            // Add notes section on next page
-            pageWidgets.add(pw.NewPage());
-
-            pageWidgets.add(pw.Header(level: 1, text: 'Notes'));
-
-            // Include the notes from the controller
-            pageWidgets.add(
-              pw.Container(
-                height: notes.value.isNotEmpty ? null : 200,
-                padding: const pw.EdgeInsets.all(10),
-                decoration: pw.BoxDecoration(
-                  border: pw.Border.all(color: PdfColors.grey400),
-                  borderRadius: const pw.BorderRadius.all(
-                    pw.Radius.circular(5),
-                  ),
-                ),
-                child:
-                    notes.value.isNotEmpty
-                        ? pw.Text(notes.value)
-                        : pw.Container(),
-              ),
+              ],
             );
-
-            return pageWidgets;
           },
         ),
       );
