@@ -211,14 +211,14 @@ class HomeController extends GetxController {
 
       // Save the PDF to a temporary file with specific filename
       final tempDir = await getTemporaryDirectory();
-      pdfFile = File('${tempDir.path}/arrow_box_document.pdf');
+      pdfFile = File('${tempDir.path}/teresa_skeatch.pdf');
       await pdfFile.writeAsBytes(pdfBytes);
 
       log('PDF saved to: ${pdfFile.path}');
       // Show printing dialog
       await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => pdfBytes,
-        name: 'Arrow Box Document',
+        name: 'Teresa Sketch Document',
       );
       return pdfFile;
     } catch (e) {
