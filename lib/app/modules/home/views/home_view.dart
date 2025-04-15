@@ -86,7 +86,7 @@ class SketchWidget extends StatelessWidget {
               children: [
                 // Background image
                 Container(
-                  color: Colors.grey,
+                  color: Colors.white,
                   child: CachedNetworkImage(
                     imageUrl:
                         "https://i.pinimg.com/736x/26/4a/e1/264ae167ca67c6cc09860f5f27a7b827.jpg",
@@ -142,11 +142,6 @@ class SketchWidget extends StatelessWidget {
                                 },
                                 child: CustomPaint(
                                   painter: ArrowPainter(
-                                    text:
-                                        controller.dragDataList[i].title.value,
-                                    count:
-                                        controller.dragDataList[i].count.value,
-                                    color: Colors.black,
                                     rotation:
                                         controller
                                             .dragDataList[i]
