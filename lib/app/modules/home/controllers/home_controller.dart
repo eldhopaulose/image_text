@@ -36,7 +36,7 @@ class HomeController extends GetxController {
     // Initialize with first item
     dragDataList.add(
       DragDataModel(
-        title: '',
+        title: 'Sample Text',
         count: count.value,
         x: 317.0,
         y: 581.0,
@@ -88,26 +88,70 @@ class HomeController extends GetxController {
     }
   }
 
-  // Simplified increment method - no dialog
+  // Modified increment method with dialog for text input
   void increment(BuildContext context) {
     count.value++;
-    // Add a new drag item with default values
-    dragDataList.add(
-      DragDataModel(
-        title: '',
-        count: count.value,
-        x: 317.0,
-        y: 581.0,
-        width: 300.0, // Default width
-        height: 80.0, // Default height
-        rotation: 0.0, // Start with no rotation
-      ),
-    );
+
+    // Show dialog for text input
+    showTextFieldDialog(
+      context,
+      index: dragDataList.length, // Use length as the index for a new item
+      title: 'Add New Arrow Box',
+      hintText: 'Enter text for box',
+      countHint: 'Enter number (optional)',
+      initialText: '',
+      initialCount: count.value.toString(),
+    ).then((result) {
+      if (result != null && result['confirmed'] == true) {
+        // Add a new drag item with the values from dialog
+        dragDataList.add(
+          DragDataModel(
+            title: result['text'] ?? '',
+            count: int.tryParse(result['count'] ?? '') ?? count.value,
+            x: 317.0,
+            y: 581.0,
+            width: 300.0, // Default width
+            height: 80.0, // Default height
+            rotation: 0.0, // Start with no rotation
+          ),
+        );
+      } else {
+        // If canceled, still add a default item
+        dragDataList.add(
+          DragDataModel(
+            title: 'New Box ${count.value}',
+            count: count.value,
+            x: 317.0,
+            y: 581.0,
+            width: 300.0, // Default width
+            height: 80.0, // Default height
+            rotation: 0.0, // Start with no rotation
+          ),
+        );
+      }
+    });
+  }
+
+  String getLabel(int index) {
+    if (index < dragDataList.length) {
+      String data = dragDataList[index].title.value;
+      log('Label at index $index: $data');
+      return data;
+    }
+    return '';
   }
 
   void removeItem(int index) {
     if (index < dragDataList.length) {
       dragDataList.removeAt(index);
+    }
+  }
+
+  void updateLabel(int index, String newLabel, int newCount) {
+    if (index < dragDataList.length) {
+      dragDataList[index].title.value = newLabel;
+      dragDataList[index].count.value = newCount;
+      log('Updated arrow box $index - Label: $newLabel, Count: $newCount');
     }
   }
 
@@ -175,6 +219,46 @@ class HomeController extends GetxController {
         );
       }
 
+      // Add details page with arrow box text contents
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(32),
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Header(level: 1, text: 'Arrow Box Contents'),
+                pw.SizedBox(height: 20),
+
+                // Create a table with arrow box details
+                pw.Table.fromTextArray(
+                  border: pw.TableBorder.all(),
+                  headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  headerDecoration: const pw.BoxDecoration(
+                    color: PdfColors.grey300,
+                  ),
+                  cellAlignments: {
+                    0: pw.Alignment.center,
+                    1: pw.Alignment.centerLeft,
+                  },
+                  headers: ['Box #', 'Content'],
+                  data:
+                      dragDataList.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final box = entry.value;
+                        return [
+                          '${box.count.value}',
+                          box.title.value.isEmpty ? '(empty)' : box.title.value,
+                        ];
+                      }).toList(),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
       // Add notes on a separate page
       pdf.addPage(
         pw.Page(
@@ -211,14 +295,14 @@ class HomeController extends GetxController {
 
       // Save the PDF to a temporary file with specific filename
       final tempDir = await getTemporaryDirectory();
-      pdfFile = File('${tempDir.path}/teresa_skeatch.pdf');
+      pdfFile = File('${tempDir.path}/arrow_box_document.pdf');
       await pdfFile.writeAsBytes(pdfBytes);
 
       log('PDF saved to: ${pdfFile.path}');
       // Show printing dialog
       await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => pdfBytes,
-        name: 'Teresa Sketch Document',
+        name: 'Arrow Box Document',
       );
       return pdfFile;
     } catch (e) {
@@ -233,6 +317,111 @@ class HomeController extends GetxController {
   void updateNotes(String newNotes) {
     notes.value = newNotes;
     noteController.text = newNotes;
+  }
+
+  // Method to edit text for an existing arrow box
+  void editArrowText(BuildContext context, int index) {
+    if (index < dragDataList.length) {
+      showTextFieldDialog(
+        context,
+        index: index,
+        title: 'Edit Arrow Box ${dragDataList[index].count.value}',
+        hintText: 'Edit text',
+        countHint: 'Edit number',
+        initialText: dragDataList[index].title.value,
+        initialCount: dragDataList[index].count.value.toString(),
+      ).then((result) {
+        if (result != null && result['confirmed'] == true) {
+          updateLabel(
+            index,
+            result['text'] ?? '',
+            int.tryParse(result['count'] ?? '') ??
+                dragDataList[index].count.value,
+          );
+        }
+      });
+    }
+  }
+
+  // Dialog for text input
+  Future<Map<String, dynamic>?> showTextFieldDialog(
+    BuildContext context, {
+    required int index,
+    String title = 'Enter Text',
+    String hintText = 'Enter text',
+    String countHint = 'Enter number',
+    String initialText = '',
+    String initialCount = '0',
+  }) {
+    // Pre-fill with existing values if editing an existing item
+    String textValue = initialText;
+    String countValue = initialCount;
+
+    if (index < dragDataList.length) {
+      textValue = dragDataList[index].title.value;
+      countValue = dragDataList[index].count.value.toString();
+    }
+
+    final TextEditingController textController = TextEditingController(
+      text: textValue,
+    );
+    final TextEditingController countController = TextEditingController(
+      text: countValue,
+    );
+
+    return showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Container(
+            width: 300,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: textController,
+                  decoration: InputDecoration(
+                    labelText: 'Text',
+                    hintText: hintText,
+                  ),
+                  maxLines: 3, // Allow multiline text input
+                  autofocus: true,
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: countController,
+                  decoration: InputDecoration(
+                    labelText: 'Count',
+                    hintText: countHint,
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop({'confirmed': false});
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Return both values
+                Navigator.of(context).pop({
+                  'confirmed': true,
+                  'text': textController.text,
+                  'count': countController.text,
+                });
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Simplified method to show a dialog for adding notes

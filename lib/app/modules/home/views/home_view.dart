@@ -149,7 +149,7 @@ class SketchWidget extends StatelessWidget {
                       left: controller.dragDataList[i].x.value,
                       child: Stack(
                         children: [
-                          // The Arrow with rectangle box
+                          // The Arrow with rectangle box and text
                           GestureDetector(
                             onPanUpdate: (details) {
                               controller.updatePosition(
@@ -158,11 +158,44 @@ class SketchWidget extends StatelessWidget {
                                 details.delta.dy,
                               );
                             },
+                            onTap: () {
+                              // Edit text on tap
+                              controller.editArrowText(context, i);
+                            },
                             onLongPress: () {
-                              controller.removeItem(i);
+                              // Show delete confirmation
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (context) => AlertDialog(
+                                      title: Text('Delete Arrow Box'),
+                                      content: Text(
+                                        'Are you sure you want to delete this arrow box?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () => Navigator.of(context).pop(),
+                                          child: Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            controller.removeItem(i);
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text(
+                                            'Delete',
+                                            style: TextStyle(color: Colors.red),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                              );
                             },
                             child: CustomPaint(
                               painter: ArrowPainter(
+                                text: controller.dragDataList[i].title.value,
+                                count: controller.dragDataList[i].count.value,
                                 rotation:
                                     controller.dragDataList[i].rotation.value,
                               ),
@@ -227,6 +260,30 @@ class SketchWidget extends StatelessWidget {
                                   ),
                                   child: const Icon(
                                     Icons.open_with,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            // Edit text button (positioned at the top-right)
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  controller.editArrowText(context, i);
+                                },
+                                child: Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    color: Colors.purple.withOpacity(0.7),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.edit,
                                     size: 16,
                                     color: Colors.white,
                                   ),
