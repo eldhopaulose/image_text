@@ -32,7 +32,14 @@ class HomeController extends GetxController {
     super.onInit();
     // Initialize with first item
     dragDataList.add(
-      DragDataModel(title: '', count: count.value, x: 317.0, y: 581.0),
+      DragDataModel(
+        title: '',
+        count: count.value,
+        x: 317.0,
+        y: 581.0,
+        width: 300.0,
+        height: 80.0,
+      ),
     );
     widgetsToImageController = WidgetsToImageController();
 
@@ -40,11 +47,6 @@ class HomeController extends GetxController {
     noteController.addListener(() {
       notes.value = noteController.text;
     });
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
   }
 
   @override
@@ -57,7 +59,6 @@ class HomeController extends GetxController {
   void updateArrowRotation(int index, double dx) {
     if (index < dragDataList.length) {
       // Convert horizontal movement to rotation in radians
-      // The sensitivity factor (0.01) controls how responsive the rotation is
       final sensitivity = 0.01;
       final newRotation =
           dragDataList[index].rotation.value + (dx * sensitivity);
@@ -67,7 +68,6 @@ class HomeController extends GetxController {
     }
   }
 
-  // Updated arrow size method
   void updateArrowSize(int index, double dWidth, double dHeight) {
     if (index < dragDataList.length) {
       // Update width (with minimum size to prevent arrow from getting too small)
@@ -80,70 +80,26 @@ class HomeController extends GetxController {
     }
   }
 
-  // Updated increment method
+  // Simplified increment method - no dialog
   void increment(BuildContext context) {
     count.value++;
-
-    // Show dialog immediately when adding a new item
-    showTextFieldDialog(
-      context,
-      index: dragDataList.length,
-      title: 'Add New Arrow',
-      hintText: 'Type label here',
-      countHint: 'Enter number',
-      initialText: '',
-      initialCount: count.value.toString(),
-    ).then((result) {
-      if (result != null && result['confirmed'] == true) {
-        // Add a new drag item with the values from dialog
-        dragDataList.add(
-          DragDataModel(
-            title: result['text'] ?? '',
-            count: int.tryParse(result['count'] ?? '') ?? count.value,
-            x: 317.0,
-            y: 581.0,
-            width: 300.0, // Default width
-            height: 80.0, // Default height
-            rotation: 0.0, // Start with no rotation
-          ),
-        );
-      } else {
-        // If canceled, still add a default item
-        dragDataList.add(
-          DragDataModel(
-            title: '',
-            count: count.value,
-            x: 317.0,
-            y: 581.0,
-            width: 300.0, // Default width
-            height: 80.0, // Default height
-            rotation: 0.0, // Start with no rotation
-          ),
-        );
-      }
-    });
-  }
-
-  String getLabel(int index) {
-    if (index < dragDataList.length) {
-      String data = dragDataList[index].title.value;
-      log('Label at index $index: $data');
-      return data;
-    }
-    return '';
+    // Add a new drag item with default values
+    dragDataList.add(
+      DragDataModel(
+        title: '',
+        count: count.value,
+        x: 317.0,
+        y: 581.0,
+        width: 300.0, // Default width
+        height: 80.0, // Default height
+        rotation: 0.0, // Start with no rotation
+      ),
+    );
   }
 
   void removeItem(int index) {
     if (index < dragDataList.length) {
       dragDataList.removeAt(index);
-    }
-  }
-
-  void updateLabel(int index, String newLabel, int newCount) {
-    if (index < dragDataList.length) {
-      dragDataList[index].title.value = newLabel;
-      dragDataList[index].count.value = newCount;
-      log('Updated bubble $index - Label: $newLabel, Count: $newCount');
     }
   }
 
@@ -181,146 +137,38 @@ class HomeController extends GetxController {
       // Create PDF document
       final pdf = pw.Document();
 
-      // Define a theme for consistent styling
-      final theme = pw.ThemeData.withFont(
-        base: pw.Font.helvetica(),
-        bold: pw.Font.helveticaBold(),
-      );
-
-      // Create a multi-page layout that automatically handles pagination
+      // Create a simple page layout
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           margin: const pw.EdgeInsets.all(32),
-          theme: theme,
-          header: (pw.Context context) {
-            return pw.Header(
-              level: 0,
-              child: pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Text(
-                    'Teresa Sketch Document',
-                    style: pw.TextStyle(
-                      fontSize: 24,
-                      fontWeight: pw.FontWeight.bold,
-                    ),
-                  ),
-                  pw.Text(
-                    'Date: ${DateTime.now().toString().split(' ')[0]}',
-                    style: pw.TextStyle(fontSize: 14),
-                  ),
-                ],
-              ),
-            );
-          },
-          footer: (pw.Context context) {
-            return pw.Footer(
-              margin: const pw.EdgeInsets.only(top: 15),
-              trailing: pw.Text(
-                'Page ${context.pageNumber} of ${context.pagesCount}',
-                style: pw.TextStyle(fontSize: 10),
-              ),
-            );
-          },
           build: (pw.Context context) {
             // List to hold all widgets that will be rendered in the document
             List<pw.Widget> pageWidgets = [];
 
-            // Add title
-            pageWidgets.add(
-              pw.Padding(
-                padding: const pw.EdgeInsets.only(bottom: 20),
-                child: pw.Center(
-                  child: pw.Text(
-                    'Job Card Image',
-                    style: pw.TextStyle(
-                      fontSize: 20,
-                      fontWeight: pw.FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            );
-
             // Add the captured image
             if (bytes != null) {
               pageWidgets.add(
-                pw.Padding(
-                  padding: const pw.EdgeInsets.only(bottom: 20),
-                  child: pw.Center(
-                    child: pw.Image(
-                      pw.MemoryImage(bytes!),
-                      width: 350,
-                      height: 300,
-                      fit: pw.BoxFit.contain,
-                    ),
+                pw.Center(
+                  child: pw.Image(
+                    pw.MemoryImage(bytes!),
+                    width: 350,
+                    height: 300,
+                    fit: pw.BoxFit.contain,
                   ),
                 ),
               );
             }
 
-            // Add section title for bubble details
-            pageWidgets.add(
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 10),
-                child: pw.Text(
-                  'Job Card Details:',
-                  style: pw.TextStyle(
-                    fontSize: 16,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
-              ),
-            );
+            // Add notes section on next page
+            pageWidgets.add(pw.NewPage());
 
-            // Add a table for the bubble data
-            final tableHeaders = ['No.', 'Label'];
-
-            final tableData =
-                dragDataList.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final element = entry.value;
-                  return ['${index + 1}', element.title.value];
-                }).toList();
-
-            pageWidgets.add(
-              pw.Table.fromTextArray(
-                border: null,
-                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                headerDecoration: const pw.BoxDecoration(
-                  color: PdfColors.grey300,
-                ),
-                cellHeight: 30,
-                cellAlignments: {
-                  0: pw.Alignment.center,
-                  1: pw.Alignment.center,
-                  2: pw.Alignment.centerLeft,
-                  3: pw.Alignment.center,
-                },
-                headers: tableHeaders,
-                data: tableData,
-              ),
-            );
-
-            // Add notes section
-            pageWidgets.add(
-              pw.Padding(
-                padding: const pw.EdgeInsets.only(top: 30, bottom: 10),
-                child: pw.Text(
-                  'Notes:',
-                  style: pw.TextStyle(
-                    fontSize: 16,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
-              ),
-            );
+            pageWidgets.add(pw.Header(level: 1, text: 'Notes'));
 
             // Include the notes from the controller
             pageWidgets.add(
               pw.Container(
-                height: notes.value.isNotEmpty ? null : 100,
+                height: notes.value.isNotEmpty ? null : 200,
                 padding: const pw.EdgeInsets.all(10),
                 decoration: pw.BoxDecoration(
                   border: pw.Border.all(color: PdfColors.grey400),
@@ -335,50 +183,6 @@ class HomeController extends GetxController {
               ),
             );
 
-            // Add a signature section
-            pageWidgets.add(
-              pw.Padding(
-                padding: const pw.EdgeInsets.only(top: 40),
-                child: pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Container(
-                          width: 150,
-                          decoration: const pw.BoxDecoration(
-                            border: pw.Border(
-                              bottom: pw.BorderSide(color: PdfColors.black),
-                            ),
-                          ),
-                          height: 1,
-                        ),
-                        pw.SizedBox(height: 5),
-                        pw.Text('Signature'),
-                      ],
-                    ),
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Container(
-                          width: 150,
-                          decoration: const pw.BoxDecoration(
-                            border: pw.Border(
-                              bottom: pw.BorderSide(color: PdfColors.black),
-                            ),
-                          ),
-                          height: 1,
-                        ),
-                        pw.SizedBox(height: 5),
-                        pw.Text('Date'),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-
             return pageWidgets;
           },
         ),
@@ -388,14 +192,14 @@ class HomeController extends GetxController {
 
       // Save the PDF to a temporary file with specific filename
       final tempDir = await getTemporaryDirectory();
-      pdfFile = File('${tempDir.path}/teresa_skeatch.pdf');
+      pdfFile = File('${tempDir.path}/arrow_box_document.pdf');
       await pdfFile.writeAsBytes(pdfBytes);
 
       log('PDF saved to: ${pdfFile.path}');
       // Show printing dialog
       await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => pdfBytes,
-        name: 'Teresa Sketch Document',
+        name: 'Arrow Box Document',
       );
       return pdfFile;
     } catch (e) {
@@ -412,96 +216,7 @@ class HomeController extends GetxController {
     noteController.text = newNotes;
   }
 
-  // Modified to return a Map with both values
-  Future<Map<String, dynamic>?> showTextFieldDialog(
-    BuildContext context, {
-    required int index,
-    String title = 'Enter Text',
-    String hintText = 'Enter text',
-    String countHint = 'Enter number',
-    String initialText = '',
-    String initialCount = '0',
-  }) {
-    // Pre-fill with existing values if editing an existing item
-    String textValue = initialText;
-    String countValue = initialCount;
-
-    if (index < dragDataList.length) {
-      textValue = dragDataList[index].title.value;
-      countValue = dragDataList[index].count.value.toString();
-    }
-
-    final TextEditingController textController = TextEditingController(
-      text: textValue,
-    );
-    final TextEditingController countController = TextEditingController(
-      text: countValue,
-    );
-
-    return showDialog<Map<String, dynamic>>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Container(
-            width: 300,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: textController,
-                  decoration: InputDecoration(
-                    labelText: 'Label',
-                    hintText: hintText,
-                  ),
-                  autofocus: true,
-                ),
-                SizedBox(height: 16),
-                TextField(
-                  controller: countController,
-                  decoration: InputDecoration(
-                    labelText: 'Count',
-                    hintText: countHint,
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop({'confirmed': false});
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                // If it's an existing item, update it directly
-                if (index < dragDataList.length) {
-                  updateLabel(
-                    index,
-                    textController.text,
-                    int.tryParse(countController.text) ?? 0,
-                  );
-                }
-
-                // Return both values
-                Navigator.of(context).pop({
-                  'confirmed': true,
-                  'text': textController.text,
-                  'count': countController.text,
-                });
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Method to show a dialog for adding notes
+  // Simplified method to show a dialog for adding notes
   Future<void> showNotesDialog(BuildContext context) {
     final TextEditingController tempNoteController = TextEditingController(
       text: notes.value,

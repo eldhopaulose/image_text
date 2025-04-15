@@ -311,13 +311,13 @@ class DetailViewView extends GetView<HomeController> {
   }
 
   // Method to edit a label
-  void _editLabel(BuildContext context, int index) {
-    controller.showTextFieldDialog(
-      context,
-      index: index,
-      title: 'Edit Label',
-      hintText: 'Enter label text',
-      countHint: 'Enter number',
-    );
-  }
+  // void _editLabel(BuildContext context, int index) {
+  //   controller.showTextFieldDialog(
+  //     context,
+  //     index: index,
+  //     title: 'Edit Label',
+  //     hintText: 'Enter label text',
+  //     countHint: 'Enter number',
+  //   );
+  // }
 }
