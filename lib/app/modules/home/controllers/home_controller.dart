@@ -1,29 +1,138 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:math' as math;
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
-import 'drag_data_model.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'dart:math' as math;
-import 'dart:ui' as ui;
 
+import 'drag_data_model.dart';
 import 'draw_model.dart';
 
+// Enum to define the shape types
+enum ShapeType {
+  arrowBox, // Original arrow with text box
+  rectangle, // Rectangular box with text
+  arrow, // Standalone arrow
+  drawing, // Freehand drawing
+}
+
+// Base model for all shapes
+class BaseShapeModel {
+  RxDouble x;
+  RxDouble y;
+  RxDouble width;
+  RxDouble height;
+  RxDouble rotation;
+  Rx<ShapeType> type;
+
+  BaseShapeModel({
+    double x = 0.0,
+    double y = 0.0,
+    double width = 300.0,
+    double height = 80.0,
+    double rotation = 0.0,
+    required ShapeType type,
+  }) : x = x.obs,
+       y = y.obs,
+       width = width.obs,
+       height = height.obs,
+       rotation = rotation.obs,
+       type = type.obs;
+}
+
+// Model for shapes with text (arrow boxes and rectangles)
+class TextShapeModel extends BaseShapeModel {
+  RxString title;
+  RxInt count;
+  Rx<Color> fillColor;
+  Rx<Color> borderColor;
+  Rx<Color> textColor;
+  RxDouble strokeWidth;
+
+  TextShapeModel({
+    String title = '',
+    int count = 0,
+    double x = 0.0,
+    double y = 0.0,
+    double width = 300.0,
+    double height = 80.0,
+    double rotation = 0.0,
+    Color fillColor = const Color(0xFFD6E8F6), // Default light blue
+    Color borderColor = Colors.black,
+    Color textColor = Colors.black,
+    double strokeWidth = 1.0,
+    required ShapeType type,
+  }) : title = title.obs,
+       count = count.obs,
+       fillColor = fillColor.obs,
+       borderColor = borderColor.obs,
+       textColor = textColor.obs,
+       strokeWidth = strokeWidth.obs,
+       super(
+         x: x,
+         y: y,
+         width: width,
+         height: height,
+         rotation: rotation,
+         type: type,
+       );
+}
+
+// Model for standalone arrows
+class ArrowModel extends BaseShapeModel {
+  Rx<Color> arrowColor;
+  RxDouble strokeWidth;
+  RxDouble arrowHeadSize;
+  RxBool isBidirectional;
+  RxDouble curvature;
+
+  ArrowModel({
+    double x = 0.0,
+    double y = 0.0,
+    double width = 300.0,
+    double height = 40.0,
+    double rotation = 0.0,
+    Color arrowColor = Colors.black,
+    double strokeWidth = 2.0,
+    double arrowHeadSize = 10.0,
+    bool isBidirectional = false,
+    double curvature = 0.0,
+  }) : arrowColor = arrowColor.obs,
+       strokeWidth = strokeWidth.obs,
+       arrowHeadSize = arrowHeadSize.obs,
+       isBidirectional = isBidirectional.obs,
+       curvature = curvature.obs,
+       super(
+         x: x,
+         y: y,
+         width: width,
+         height: height,
+         rotation: rotation,
+         type: ShapeType.arrow,
+       );
+}
+
 class HomeController extends GetxController {
-  // Main list to store all drag items
+  // Main unified list for all shape types
+  RxList<BaseShapeModel> shapes = <BaseShapeModel>[].obs;
+
+  // Original lists for backward compatibility
   RxList<DragDataModel> dragDataList = <DragDataModel>[].obs;
   RxList<DrawModel> dragDataDrawList = <DrawModel>[].obs;
-  GlobalKey<SfSignaturePadState> signaturePadKey = GlobalKey();
 
+  GlobalKey<SfSignaturePadState> signaturePadKey = GlobalKey();
   WidgetsToImageController widgetsToImageController =
       WidgetsToImageController();
   Uint8List? bytes;
+
   // Counter for new items
   RxInt count = 1.obs;
   RxBool isLoading = false.obs;
@@ -32,14 +141,14 @@ class HomeController extends GetxController {
   // Flag to show/hide control buttons
   RxBool showControls = true.obs;
 
-  // Add a controller and variable for notes
+  // Controller and variable for notes
   final TextEditingController noteController = TextEditingController();
   RxString notes = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
-    // Initialize with first item
+    // Initialize with first item (arrow box)
     dragDataList.add(
       DragDataModel(
         title: 'Sample Text',
@@ -50,6 +159,16 @@ class HomeController extends GetxController {
         height: 80.0,
       ),
     );
+
+    // Add to the unified list
+    shapes.add(
+      TextShapeModel(
+        title: 'Sample Text',
+        count: count.value,
+        type: ShapeType.arrowBox,
+      ),
+    );
+
     widgetsToImageController = WidgetsToImageController();
 
     // Listen to changes in the noteController
@@ -68,6 +187,275 @@ class HomeController extends GetxController {
   // Toggle control buttons visibility
   void toggleControls() {
     showControls.value = !showControls.value;
+  }
+
+  // SHAPE MANAGEMENT METHODS
+
+  // Add a new rectangle
+  void addRectangle(BuildContext context) {
+    count.value++;
+
+    // Show dialog for text input
+    showTextFieldDialog(
+      context,
+      index: shapes.length,
+      title: 'Add Rectangle',
+      hintText: 'Enter text for rectangle',
+      countHint: 'Enter number (optional)',
+      initialText: '',
+      initialCount: count.value.toString(),
+    ).then((result) {
+      if (result != null && result['confirmed'] == true) {
+        // Create a new rectangle with a different color to differentiate
+        final newRect = TextShapeModel(
+          title: result['text'] ?? '',
+          count: int.tryParse(result['count'] ?? '') ?? count.value,
+          fillColor: const Color(0xFFF6D6E8), // Light pink color
+          type: ShapeType.rectangle,
+        );
+
+        shapes.add(newRect);
+      }
+    });
+  }
+
+  // Add a standalone arrow
+  void addArrow() {
+    final newArrow = ArrowModel(width: 300.0, height: 40.0);
+
+    shapes.add(newArrow);
+  }
+
+  // Generic update position for any shape
+  void updateShapePosition(int index, double dx, double dy) {
+    if (index < shapes.length) {
+      shapes[index].x.value += dx;
+      shapes[index].y.value -= dy;
+    }
+  }
+
+  // Generic update rotation for any shape
+  void updateShapeRotation(int index, double dx) {
+    if (index < shapes.length) {
+      final sensitivity = 0.01;
+      final newRotation = shapes[index].rotation.value + (dx * sensitivity);
+      shapes[index].rotation.value = newRotation % (2 * math.pi);
+    }
+  }
+
+  // Generic update size for any shape
+  void updateShapeSize(int index, double dWidth, double dHeight) {
+    if (index < shapes.length) {
+      // Update width (with minimum size)
+      double newWidth = shapes[index].width.value + dWidth;
+      shapes[index].width.value = newWidth > 100 ? newWidth : 100;
+
+      // Update height (with minimum size)
+      double newHeight = shapes[index].height.value + dHeight;
+      shapes[index].height.value = newHeight > 40 ? newHeight : 40;
+    }
+  }
+
+  // Update arrow-specific properties
+  void updateArrowProperties(
+    int index, {
+    Color? color,
+    double? strokeWidth,
+    double? arrowHeadSize,
+    bool? isBidirectional,
+    double? curvature,
+  }) {
+    if (index < shapes.length && shapes[index] is ArrowModel) {
+      final arrow = shapes[index] as ArrowModel;
+      if (color != null) arrow.arrowColor.value = color;
+      if (strokeWidth != null) arrow.strokeWidth.value = strokeWidth;
+      if (arrowHeadSize != null) arrow.arrowHeadSize.value = arrowHeadSize;
+      if (isBidirectional != null)
+        arrow.isBidirectional.value = isBidirectional;
+      if (curvature != null) arrow.curvature.value = curvature;
+    }
+  }
+
+  // Update text shape properties
+  void updateTextShapeProperties(
+    int index, {
+    String? text,
+    int? count,
+    Color? fillColor,
+    Color? borderColor,
+    Color? textColor,
+    double? strokeWidth,
+  }) {
+    if (index < shapes.length && shapes[index] is TextShapeModel) {
+      final textShape = shapes[index] as TextShapeModel;
+      if (text != null) textShape.title.value = text;
+      if (count != null) textShape.count.value = count;
+      if (fillColor != null) textShape.fillColor.value = fillColor;
+      if (borderColor != null) textShape.borderColor.value = borderColor;
+      if (textColor != null) textShape.textColor.value = textColor;
+      if (strokeWidth != null) textShape.strokeWidth.value = strokeWidth;
+    }
+  }
+
+  // Show arrow properties dialog
+  void showArrowPropertiesDialog(BuildContext context, int index) {
+    if (index < shapes.length && shapes[index] is ArrowModel) {
+      final arrow = shapes[index] as ArrowModel;
+
+      // Initial values
+      final RxBool isBidirectional = arrow.isBidirectional.value.obs;
+      final RxDouble strokeWidth = arrow.strokeWidth.value.obs;
+      final RxDouble curvature = arrow.curvature.value.obs;
+      final Rx<Color> arrowColor = arrow.arrowColor.value.obs;
+
+      // Available colors
+      final List<Color> availableColors = [
+        Colors.black,
+        Colors.blue,
+        Colors.red,
+        Colors.green,
+        Colors.orange,
+        Colors.purple,
+      ];
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Arrow Properties'),
+            content: Container(
+              width: 300,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Color selection
+                  Row(
+                    children: [
+                      const Text('Color: '),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Wrap(
+                          spacing: 8,
+                          children:
+                              availableColors.map((color) {
+                                return Obx(
+                                  () => GestureDetector(
+                                    onTap: () => arrowColor.value = color,
+                                    child: Container(
+                                      width: 24,
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        color: color,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color:
+                                              arrowColor.value == color
+                                                  ? Colors.grey.shade300
+                                                  : Colors.transparent,
+                                          width: 3,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Stroke width slider
+                  Row(
+                    children: [
+                      const Text('Thickness: '),
+                      Expanded(
+                        child: Obx(
+                          () => Slider(
+                            value: strokeWidth.value,
+                            min: 1.0,
+                            max: 10.0,
+                            divisions: 9,
+                            label: strokeWidth.value.toStringAsFixed(1),
+                            onChanged: (value) => strokeWidth.value = value,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Curvature slider
+                  Row(
+                    children: [
+                      const Text('Curve: '),
+                      Expanded(
+                        child: Obx(
+                          () => Slider(
+                            value: curvature.value,
+                            min: -0.5,
+                            max: 0.5,
+                            divisions: 10,
+                            label: curvature.value.toStringAsFixed(1),
+                            onChanged: (value) => curvature.value = value,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Bidirectional toggle
+                  Obx(
+                    () => CheckboxListTile(
+                      title: const Text('Bidirectional'),
+                      value: isBidirectional.value,
+                      onChanged: (value) {
+                        if (value != null) {
+                          isBidirectional.value = value;
+                        }
+                      },
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  updateArrowProperties(
+                    index,
+                    color: arrowColor.value,
+                    strokeWidth: strokeWidth.value,
+                    isBidirectional: isBidirectional.value,
+                    curvature: curvature.value,
+                  );
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Apply'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // EXISTING METHODS WITH UPDATES TO SUPPORT BOTH OLD AND NEW APPROACH
+
+  void removeShape(int index) {
+    if (index < shapes.length) {
+      shapes.removeAt(index);
+    }
   }
 
   void updateArrowRotation(int index, double dx) {
@@ -118,7 +506,7 @@ class HomeController extends GetxController {
     }
   }
 
-  // Modified increment method with dialog for text input
+  // Modified increment method with dialog for text input (arrow box)
   void increment(BuildContext context) {
     count.value++;
 
@@ -133,7 +521,15 @@ class HomeController extends GetxController {
       initialCount: count.value.toString(),
     ).then((result) {
       if (result != null && result['confirmed'] == true) {
-        // Add a new drag item with the values from dialog
+        // Add to the new shapes list
+        final newBox = TextShapeModel(
+          title: result['text'] ?? '',
+          count: int.tryParse(result['count'] ?? '') ?? count.value,
+          type: ShapeType.arrowBox,
+        );
+        shapes.add(newBox);
+
+        // Add to the original list for backward compatibility
         dragDataList.add(
           DragDataModel(
             title: result['text'] ?? '',
@@ -147,6 +543,13 @@ class HomeController extends GetxController {
         );
       } else {
         // If canceled, still add a default item
+        final newBox = TextShapeModel(
+          title: 'New Box ${count.value}',
+          count: count.value,
+          type: ShapeType.arrowBox,
+        );
+        shapes.add(newBox);
+
         dragDataList.add(
           DragDataModel(
             title: 'New Box ${count.value}',
@@ -175,6 +578,11 @@ class HomeController extends GetxController {
     if (index < dragDataList.length) {
       dragDataList.removeAt(index);
     }
+
+    // Also remove from shapes list if applicable
+    if (index < shapes.length) {
+      shapes.removeAt(index);
+    }
   }
 
   void updateLabel(int index, String newLabel, int newCount) {
@@ -183,12 +591,25 @@ class HomeController extends GetxController {
       dragDataList[index].count.value = newCount;
       log('Updated arrow box $index - Label: $newLabel, Count: $newCount');
     }
+
+    // Also update in the shapes list if it's a text shape
+    if (index < shapes.length && shapes[index] is TextShapeModel) {
+      final textShape = shapes[index] as TextShapeModel;
+      textShape.title.value = newLabel;
+      textShape.count.value = newCount;
+    }
   }
 
   void updatePosition(int index, double dx, double dy) {
     if (index < dragDataList.length) {
       dragDataList[index].x.value += dx;
       dragDataList[index].y.value -= dy;
+    }
+
+    // Also update shape position if applicable
+    if (index < shapes.length) {
+      shapes[index].x.value += dx;
+      shapes[index].y.value -= dy;
     }
   }
 
@@ -256,7 +677,7 @@ class HomeController extends GetxController {
         );
       }
 
-      // Add details page with arrow box text contents
+      // Add details page with shape contents
       pdf.addPage(
         pw.Page(
           pageFormat: PdfPageFormat.a4,
@@ -265,10 +686,10 @@ class HomeController extends GetxController {
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Header(level: 1, text: 'Arrow Box Contents'),
+                pw.Header(level: 1, text: 'Shape Contents'),
                 pw.SizedBox(height: 20),
 
-                // Create a table with arrow box details
+                // Create a table with arrow box and rectangle details
                 pw.Table.fromTextArray(
                   border: pw.TableBorder.all(),
                   headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
@@ -277,18 +698,45 @@ class HomeController extends GetxController {
                   ),
                   cellAlignments: {
                     0: pw.Alignment.center,
-                    1: pw.Alignment.centerLeft,
+                    1: pw.Alignment.center,
+                    2: pw.Alignment.centerLeft,
                   },
-                  headers: ['Box #', 'Content'],
+                  headers: ['#', 'Type', 'Content'],
                   data:
-                      dragDataList.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final box = entry.value;
-                        return [
-                          '${box.count.value}',
-                          box.title.value.isEmpty ? '(empty)' : box.title.value,
-                        ];
-                      }).toList(),
+                      shapes
+                          .asMap()
+                          .entries
+                          .where(
+                            (entry) =>
+                                entry.value is TextShapeModel ||
+                                entry.value is ArrowModel,
+                          )
+                          .map((entry) {
+                            final shape = entry.value;
+
+                            if (shape is TextShapeModel) {
+                              return [
+                                '${shape.count.value}',
+                                shape.type.value == ShapeType.arrowBox
+                                    ? 'Arrow Box'
+                                    : 'Rectangle',
+                                shape.title.value.isEmpty
+                                    ? '(empty)'
+                                    : shape.title.value,
+                              ];
+                            } else if (shape is ArrowModel) {
+                              return [
+                                '${entry.key + 1}',
+                                'Arrow',
+                                shape.isBidirectional.value
+                                    ? 'Bidirectional arrow'
+                                    : 'Single arrow',
+                              ];
+                            } else {
+                              return ['', '', ''];
+                            }
+                          })
+                          .toList(),
                 ),
               ],
             );
@@ -332,14 +780,14 @@ class HomeController extends GetxController {
 
       // Save the PDF to a temporary file with specific filename
       final tempDir = await getTemporaryDirectory();
-      pdfFile = File('${tempDir.path}/arrow_box_document.pdf');
+      pdfFile = File('${tempDir.path}/shape_diagram.pdf');
       await pdfFile.writeAsBytes(pdfBytes);
 
       log('PDF saved to: ${pdfFile.path}');
       // Show printing dialog
       await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => pdfBytes,
-        name: 'Arrow Box Document',
+        name: 'Shape Diagram',
       );
       return pdfFile;
     } catch (e) {
@@ -354,6 +802,41 @@ class HomeController extends GetxController {
   void updateNotes(String newNotes) {
     notes.value = newNotes;
     noteController.text = newNotes;
+  }
+
+  // Method to edit text for an existing shape
+  void editShapeText(BuildContext context, int index) {
+    if (index < shapes.length && shapes[index] is TextShapeModel) {
+      final textShape = shapes[index] as TextShapeModel;
+
+      showTextFieldDialog(
+        context,
+        index: index,
+        title: 'Edit Shape Text',
+        hintText: 'Edit text',
+        countHint: 'Edit number',
+        initialText: textShape.title.value,
+        initialCount: textShape.count.value.toString(),
+      ).then((result) {
+        if (result != null && result['confirmed'] == true) {
+          updateTextShapeProperties(
+            index,
+            text: result['text'] ?? '',
+            count: int.tryParse(result['count'] ?? '') ?? textShape.count.value,
+          );
+
+          // Also update in original list if applicable
+          if (index < dragDataList.length) {
+            updateLabel(
+              index,
+              result['text'] ?? '',
+              int.tryParse(result['count'] ?? '') ??
+                  dragDataList[index].count.value,
+            );
+          }
+        }
+      });
+    }
   }
 
   // Method to edit text for an existing arrow box
@@ -380,7 +863,6 @@ class HomeController extends GetxController {
     }
   }
 
-  // Dialog for text input
   Future<Map<String, dynamic>?> showTextFieldDialog(
     BuildContext context, {
     required int index,
@@ -397,6 +879,10 @@ class HomeController extends GetxController {
     if (index < dragDataList.length) {
       textValue = dragDataList[index].title.value;
       countValue = dragDataList[index].count.value.toString();
+    } else if (index < shapes.length && shapes[index] is TextShapeModel) {
+      final textShape = shapes[index] as TextShapeModel;
+      textValue = textShape.title.value;
+      countValue = textShape.count.value.toString();
     }
 
     final TextEditingController textController = TextEditingController(
@@ -679,7 +1165,7 @@ class HomeController extends GetxController {
                   if (byteData != null) {
                     final Uint8List pngBytes = byteData.buffer.asUint8List();
 
-                    // Add to controller's list with Uint8List
+                    // Add to controller's drawing list
                     dragDataDrawList.add(
                       DrawModel(
                         imageBytes: pngBytes,
