@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../editor/controllers/editor_controller.dart';
 import '../controllers/ArrowPainter.dart';
 import '../controllers/home_controller.dart';
 
@@ -15,6 +16,8 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     Get.put(HomeController(), permanent: true);
+    EditorController editorController = Get.put(EditorController());
+
     return Scaffold(
       appBar: AppBar(title: const Text('Arrow Box Demo'), centerTitle: true),
       floatingActionButton: FloatingActionButton(
@@ -71,38 +74,49 @@ class HomeView extends GetView<HomeController> {
                     foregroundColor: Colors.white,
                   ),
                 ),
-                // Button to print
-                Obx(
-                  () => ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                    ),
-                    onPressed:
-                        controller.isGeratePdfLoading.value
-                            ? null
-                            : () => controller.generatePDF(),
-                    icon: const Icon(Icons.print),
-                    label:
-                        controller.isGeratePdfLoading.value
-                            ? const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                                SizedBox(width: 8),
-                                Text('Printing...'),
-                              ],
-                            )
-                            : const Text('Print Document'),
+
+                ElevatedButton.icon(
+                  onPressed: () => editorController.openImageEditor(context),
+                  icon: const Icon(Icons.draw),
+                  label: const Text('OR Edit Image'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
                   ),
                 ),
+                SizedBox(width: 60),
+                // Button to print
+                // Obx(
+                //   () => ElevatedButton.icon(
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: Colors.blue,
+                //       foregroundColor: Colors.white,
+                //     ),
+                //     onPressed:
+                //         controller.isGeratePdfLoading.value
+                //             ? null
+                //             : () => controller.generatePDF(),
+                //     icon: const Icon(Icons.print),
+                //     label:
+                //         controller.isGeratePdfLoading.value
+                //             ? const Row(
+                //               mainAxisSize: MainAxisSize.min,
+                //               children: [
+                //                 SizedBox(
+                //                   width: 16,
+                //                   height: 16,
+                //                   child: CircularProgressIndicator(
+                //                     color: Colors.white,
+                //                     strokeWidth: 2,
+                //                   ),
+                //                 ),
+                //                 SizedBox(width: 8),
+                //                 Text('Printing...'),
+                //               ],
+                //             )
+                //             : const Text('Print Document'),
+                //   ),
+                // ),
               ],
             ),
           ),
