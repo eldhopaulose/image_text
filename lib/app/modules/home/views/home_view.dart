@@ -178,9 +178,9 @@ class SketchWidget extends StatelessWidget {
                                 context: context,
                                 builder:
                                     (context) => AlertDialog(
-                                      title: Text('Delete Arrow Box'),
+                                      title: Text('Delete Draw'),
                                       content: Text(
-                                        'Are you sure you want to delete this arrow box?',
+                                        'Are you sure you want to delete this draw?',
                                       ),
                                       actions: [
                                         TextButton(

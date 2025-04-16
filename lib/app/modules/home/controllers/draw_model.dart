@@ -9,6 +9,7 @@ class DrawModel {
   RxDouble width; // Width of the arrow + box
   RxDouble height; // Height of the arrow + box
   RxDouble rotation; // Rotation in radians
+
   DrawModel({
     required this.imageBytes,
     double x = 0.0,

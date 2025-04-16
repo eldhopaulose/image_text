@@ -512,6 +512,20 @@ class HomeController extends GetxController {
 
   // Simplified method to show a dialog for adding notes
   Future<void> showDrawDialog(BuildContext context) {
+    // State variables for brush settings
+    final RxDouble strokeWidth = 2.0.obs;
+    final Rx<Color> strokeColor = Colors.black.obs;
+
+    // Define available colors
+    final List<Color> availableColors = [
+      Colors.black,
+      Colors.blue,
+      Colors.red,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+    ];
+
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -522,12 +536,123 @@ class HomeController extends GetxController {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SfSignaturePad(
-                  key: signaturePadKey,
-                  minimumStrokeWidth: 1,
-                  maximumStrokeWidth: 3,
-                  strokeColor: Colors.blue,
-                  backgroundColor: Colors.transparent,
+                // Color selection
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Color: ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 8),
+                      // Display color options as circular buttons
+                      ...availableColors.map(
+                        (color) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: Obx(
+                            () => GestureDetector(
+                              onTap: () => strokeColor.value = color,
+                              child: Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: color,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color:
+                                        strokeColor.value == color
+                                            ? Colors.grey.shade300
+                                            : Colors.transparent,
+                                    width: 3,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Thickness slider
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    children: [
+                      const Text(
+                        'Thickness: ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Expanded(
+                        child: Obx(
+                          () => Slider(
+                            value: strokeWidth.value,
+                            min: 1.0,
+                            max: 10.0,
+                            divisions: 9,
+                            label: strokeWidth.value.toStringAsFixed(1),
+                            onChanged: (value) => strokeWidth.value = value,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Clear button
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          signaturePadKey.currentState?.clear();
+                        },
+                        icon: const Icon(Icons.clear),
+                        label: const Text('Clear'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Signature pad with dynamic settings
+                Container(
+                  height: 200, // Fixed height for better control
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Obx(
+                    () => SfSignaturePad(
+                      key: signaturePadKey,
+                      minimumStrokeWidth: strokeWidth.value / 2,
+                      maximumStrokeWidth: strokeWidth.value,
+                      strokeColor: strokeColor.value,
+                      backgroundColor: Colors.white.withOpacity(0.05),
+                    ),
+                  ),
+                ),
+
+                // Note about undo
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    "Note: For complex drawings, make changes incrementally and save versions as needed.",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ],
             ),
@@ -541,28 +666,49 @@ class HomeController extends GetxController {
             ),
             TextButton(
               onPressed: () async {
-                // Capture signature as ui.Image
-                ui.Image image = await signaturePadKey.currentState!.toImage();
+                try {
+                  // Capture signature as ui.Image
+                  ui.Image image =
+                      await signaturePadKey.currentState!.toImage();
 
-                // Convert to PNG bytes
-                final ByteData? byteData = await image.toByteData(
-                  format: ui.ImageByteFormat.png,
-                );
-                final Uint8List pngBytes = byteData!.buffer.asUint8List();
+                  // Convert to PNG bytes
+                  final ByteData? byteData = await image.toByteData(
+                    format: ui.ImageByteFormat.png,
+                  );
 
-                // Add to controller's list with Uint8List
-                dragDataDrawList.add(
-                  DrawModel(
-                    imageBytes: pngBytes,
-                    x: 0,
-                    y: 0,
-                    width: 300.0, // Default width
-                    height: 80.0, // Default height
-                    rotation: 0.0, // Start with no rotation
-                  ),
-                );
+                  if (byteData != null) {
+                    final Uint8List pngBytes = byteData.buffer.asUint8List();
 
-                Navigator.of(context).pop();
+                    // Add to controller's list with Uint8List
+                    dragDataDrawList.add(
+                      DrawModel(
+                        imageBytes: pngBytes,
+                        x: 0,
+                        y: 0,
+                        width: 300.0, // Default width
+                        height:
+                            200.0, // Default height matches the signature pad
+                        rotation: 0.0, // Start with no rotation
+                      ),
+                    );
+
+                    Navigator.of(context).pop();
+                  } else {
+                    // Handle the case where byteData is null
+                    Get.snackbar(
+                      'Error',
+                      'Failed to capture signature',
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                  }
+                } catch (e) {
+                  // Handle any exceptions
+                  Get.snackbar(
+                    'Error',
+                    'An error occurred: $e',
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                }
               },
               child: const Text('Save'),
             ),
