@@ -202,11 +202,16 @@ class SketchWidget extends StatelessWidget {
                                     ),
                               );
                             },
-                            child: Image.memory(
-                              controller.dragDataDrawList[i].imageBytes,
-                              width: controller.dragDataDrawList[i].width.value,
-                              height:
-                                  controller.dragDataDrawList[i].height.value,
+                            child: Transform.rotate(
+                              angle:
+                                  controller.dragDataDrawList[i].rotation.value,
+                              child: Image.memory(
+                                controller.dragDataDrawList[i].imageBytes,
+                                width:
+                                    controller.dragDataDrawList[i].width.value,
+                                height:
+                                    controller.dragDataDrawList[i].height.value,
+                              ),
                             ),
                           ),
                           if (controller.showControls.value) ...[
