@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +62,15 @@ class HomeView extends GetView<HomeController> {
                     foregroundColor: Colors.white,
                   ),
                 ),
-
+                ElevatedButton.icon(
+                  onPressed: () => controller.showDrawDialog(context),
+                  icon: const Icon(Icons.draw),
+                  label: const Text('Add Draw'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
                 // Button to print
                 Obx(
                   () => ElevatedButton.icon(
@@ -140,6 +149,134 @@ class SketchWidget extends StatelessWidget {
             ),
 
             // Use Obx to observe the entire list of arrows
+            Obx(() {
+              return Stack(
+                children: List.generate(controller.dragDataDrawList.length, (
+                  i,
+                ) {
+                  return Obx(
+                    () => Positioned(
+                      bottom: controller.dragDataDrawList[i].y.value,
+                      left: controller.dragDataDrawList[i].x.value,
+                      child: Stack(
+                        children: [
+                          GestureDetector(
+                            onPanUpdate: (details) {
+                              controller.updateDrawPosition(
+                                i,
+                                details.delta.dx,
+                                details.delta.dy,
+                              );
+                            },
+                            onTap: () {
+                              // Edit text on tap
+                              controller.editArrowText(context, i);
+                            },
+                            onLongPress: () {
+                              // Show delete confirmation
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (context) => AlertDialog(
+                                      title: Text('Delete Arrow Box'),
+                                      content: Text(
+                                        'Are you sure you want to delete this arrow box?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () => Navigator.of(context).pop(),
+                                          child: Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            controller.removeItem(i);
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text(
+                                            'Delete',
+                                            style: TextStyle(color: Colors.red),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                              );
+                            },
+                            child: Image.memory(
+                              controller.dragDataDrawList[i].imageBytes,
+                              width: controller.dragDataDrawList[i].width.value,
+                              height:
+                                  controller.dragDataDrawList[i].height.value,
+                            ),
+                          ),
+                          if (controller.showControls.value) ...[
+                            // Rotation handle (positioned at the top)
+                            Positioned(
+                              top: 0,
+                              left:
+                                  controller.dragDataDrawList[i].width.value /
+                                      2 -
+                                  10,
+                              child: GestureDetector(
+                                onPanUpdate: (details) {
+                                  // Calculate rotation based on drag
+                                  controller.updateDrawRotation(
+                                    i,
+                                    details.delta.dx,
+                                  );
+                                },
+                                child: Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.withOpacity(0.7),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.rotate_right,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // Resize handle (positioned at the bottom-right)
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: GestureDetector(
+                                onPanUpdate: (details) {
+                                  // Update width and height based on drag
+                                  controller.updateDrawSize(
+                                    i,
+                                    details.delta.dx,
+                                    details.delta.dy,
+                                  );
+                                },
+                                child: Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.withOpacity(0.7),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.open_with,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              );
+            }),
+
             Obx(
               () => Stack(
                 children: List.generate(controller.dragDataList.length, (i) {
@@ -149,6 +286,13 @@ class SketchWidget extends StatelessWidget {
                       left: controller.dragDataList[i].x.value,
                       child: Stack(
                         children: [
+                          // Image.memory(
+                          //   controller
+                          //       .dragDataList[i]
+                          //       .imageBytes!, // Use the bytes directly
+                          //   width: controller.dragDataList[i].width.value,
+                          //   height: controller.dragDataList[i].height.value,
+                          // ),
                           // The Arrow with rectangle box and text
                           GestureDetector(
                             onPanUpdate: (details) {

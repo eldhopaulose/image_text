@@ -5,15 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
+import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
 import 'drag_data_model.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'dart:math' as math;
+import 'dart:ui' as ui;
+
+import 'draw_model.dart';
 
 class HomeController extends GetxController {
   // Main list to store all drag items
   RxList<DragDataModel> dragDataList = <DragDataModel>[].obs;
+  RxList<DrawModel> dragDataDrawList = <DrawModel>[].obs;
+  GlobalKey<SfSignaturePadState> signaturePadKey = GlobalKey();
 
   WidgetsToImageController widgetsToImageController =
       WidgetsToImageController();
@@ -38,8 +44,8 @@ class HomeController extends GetxController {
       DragDataModel(
         title: 'Sample Text',
         count: count.value,
-        x: 317.0,
-        y: 581.0,
+        x: 0,
+        y: 0,
         width: 300.0,
         height: 80.0,
       ),
@@ -76,6 +82,18 @@ class HomeController extends GetxController {
     }
   }
 
+  void updateDrawRotation(int index, double dx) {
+    if (index < dragDataDrawList.length) {
+      // Convert horizontal movement to rotation in radians
+      final sensitivity = 0.01;
+      final newRotation =
+          dragDataDrawList[index].rotation.value + (dx * sensitivity);
+
+      // Keep rotation within 0 to 2π range for cleaner math
+      dragDataDrawList[index].rotation.value = newRotation % (2 * math.pi);
+    }
+  }
+
   void updateArrowSize(int index, double dWidth, double dHeight) {
     if (index < dragDataList.length) {
       // Update width (with minimum size to prevent arrow from getting too small)
@@ -85,6 +103,18 @@ class HomeController extends GetxController {
       // Update height (with minimum size)
       double newHeight = dragDataList[index].height.value + dHeight;
       dragDataList[index].height.value = newHeight > 50 ? newHeight : 50;
+    }
+  }
+
+  void updateDrawSize(int index, double dWidth, double dHeight) {
+    if (index < dragDataDrawList.length) {
+      // Update width (with minimum size to prevent arrow from getting too small)
+      double newWidth = dragDataDrawList[index].width.value + dWidth;
+      dragDataDrawList[index].width.value = newWidth > 100 ? newWidth : 100;
+
+      // Update height (with minimum size)
+      double newHeight = dragDataDrawList[index].height.value + dHeight;
+      dragDataDrawList[index].height.value = newHeight > 50 ? newHeight : 50;
     }
   }
 
@@ -108,8 +138,8 @@ class HomeController extends GetxController {
           DragDataModel(
             title: result['text'] ?? '',
             count: int.tryParse(result['count'] ?? '') ?? count.value,
-            x: 317.0,
-            y: 581.0,
+            x: 0,
+            y: 0,
             width: 300.0, // Default width
             height: 80.0, // Default height
             rotation: 0.0, // Start with no rotation
@@ -121,8 +151,8 @@ class HomeController extends GetxController {
           DragDataModel(
             title: 'New Box ${count.value}',
             count: count.value,
-            x: 317.0,
-            y: 581.0,
+            x: 0,
+            y: 0,
             width: 300.0, // Default width
             height: 80.0, // Default height
             rotation: 0.0, // Start with no rotation
@@ -159,6 +189,13 @@ class HomeController extends GetxController {
     if (index < dragDataList.length) {
       dragDataList[index].x.value += dx;
       dragDataList[index].y.value -= dy;
+    }
+  }
+
+  void updateDrawPosition(int index, double dx, double dy) {
+    if (index < dragDataDrawList.length) {
+      dragDataDrawList[index].x.value += dx;
+      dragDataDrawList[index].y.value -= dy;
     }
   }
 
@@ -463,6 +500,68 @@ class HomeController extends GetxController {
               onPressed: () {
                 // Update the notes
                 updateNotes(tempNoteController.text);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Simplified method to show a dialog for adding notes
+  Future<void> showDrawDialog(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add Draw'),
+          content: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SfSignaturePad(
+                  key: signaturePadKey,
+                  minimumStrokeWidth: 1,
+                  maximumStrokeWidth: 3,
+                  strokeColor: Colors.blue,
+                  backgroundColor: Colors.transparent,
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Capture signature as ui.Image
+                ui.Image image = await signaturePadKey.currentState!.toImage();
+
+                // Convert to PNG bytes
+                final ByteData? byteData = await image.toByteData(
+                  format: ui.ImageByteFormat.png,
+                );
+                final Uint8List pngBytes = byteData!.buffer.asUint8List();
+
+                // Add to controller's list with Uint8List
+                dragDataDrawList.add(
+                  DrawModel(
+                    imageBytes: pngBytes,
+                    x: 0,
+                    y: 0,
+                    width: 300.0, // Default width
+                    height: 80.0, // Default height
+                    rotation: 0.0, // Start with no rotation
+                  ),
+                );
+
                 Navigator.of(context).pop();
               },
               child: const Text('Save'),

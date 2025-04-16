@@ -11,7 +11,7 @@ class ArrowPainter extends CustomPainter {
   final double rotation; // In radians
   final String text; // Text to display in the box
   final int count; // Optional count value
-  final double textSize; // Text size (will be scaled based on box size)
+  final double textSize; // Base text size (will be scaled as needed)
 
   // Constructor with optional parameters
   ArrowPainter({
@@ -22,13 +22,67 @@ class ArrowPainter extends CustomPainter {
     this.rotation = 0.0,
     this.text = '',
     this.count = 0,
-    this.textSize = 12.0,
+    this.textSize = 14.0,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     // Save the current canvas state
     canvas.save();
+
+    // Determine content and initial text metrics
+    final String contentText = count > 0 ? '$count. $text' : text;
+
+    // Calculate a base adaptive text size based on the overall arrow size
+    double adaptiveTextSize = (size.width * 0.05).clamp(12.0, 24.0);
+    if (contentText.length > 30) {
+      adaptiveTextSize *= 0.9; // Slightly reduce for longer text
+    }
+
+    // Configure text style and paragraph for measurement
+    final textStyle = ui.TextStyle(
+      color: textColor,
+      fontSize: adaptiveTextSize,
+      fontWeight: FontWeight.normal,
+    );
+
+    // Create paragraph builder for text measurement
+    final paragraphBuilder = ui.ParagraphBuilder(
+      ui.ParagraphStyle(
+        textAlign: TextAlign.center,
+        maxLines: 10,
+        fontSize: adaptiveTextSize,
+      ),
+    )..pushStyle(textStyle);
+
+    // Add the text content
+    paragraphBuilder.addText(contentText.isEmpty ? " " : contentText);
+
+    // First measure the text with a large constraint to see its natural size
+    final measureParagraph = paragraphBuilder.build();
+    measureParagraph.layout(ui.ParagraphConstraints(width: size.width * 0.7));
+
+    // Calculate adaptive box dimensions based on text size
+    final minBoxWidth =
+        size.width * 0.3; // Minimum width is 30% of the total width
+    final minBoxHeight =
+        size.height * 0.2; // Minimum height is 20% of the total height
+
+    // Calculate required width and height based on text
+    double requiredWidth =
+        measureParagraph.longestLine + 40; // Add some padding
+    double requiredHeight = measureParagraph.height + 24; // Add some padding
+
+    // Box dimensions based on text content, with minimums
+    final boxWidth = math.max(requiredWidth, minBoxWidth);
+    final boxHeight = math.max(requiredHeight, minBoxHeight);
+
+    // Recalculate box position to keep it centered in the available space
+    final boxLeft =
+        size.width -
+        boxWidth -
+        (size.width * 0.1); // Place from right with some margin
+    final boxTop = (size.height - boxHeight) / 2; // Center vertically
 
     // Rotation setup
     final centerX = size.width / 2;
@@ -57,25 +111,18 @@ class ArrowPainter extends CustomPainter {
           ..strokeWidth = strokeWidth
           ..style = PaintingStyle.stroke;
 
-    // Box dimensions and position
-    // The box takes up around 60% of the width and 40% of the height
-    final boxWidth = size.width * 0.6;
-    final boxHeight = size.height * 0.4;
-    final boxLeft = size.width * 0.3; // Start at 30% from left
-    final boxTop = size.height * 0.3; // Start at 30% from top
-
     // Create and draw the box
     final boxRect = Rect.fromLTWH(boxLeft, boxTop, boxWidth, boxHeight);
     canvas.drawRect(boxRect, boxPaint); // Fill
     canvas.drawRect(boxRect, boxBorderPaint); // Border
 
-    // Arrow parameters
+    // Arrow parameters - position arrow at the vertical center of the box
     final arrowEndX = boxLeft; // Arrow ends at the left side of the box
     final arrowEndY =
         boxTop + (boxHeight / 2); // Centered vertically with the box
-    final arrowStartX =
-        boxLeft -
-        (size.width * 0.2); // Arrow starts 20% of width to the left of the box
+
+    // Arrow starts 20% of width to the left of the box, but not beyond the canvas
+    final double arrowStartX = math.max(0, boxLeft - (size.width * 0.2));
     final arrowStartY = arrowEndY; // Same Y as end point
 
     // Draw the arrow line
@@ -85,20 +132,14 @@ class ArrowPainter extends CustomPainter {
       arrowPaint,
     );
 
-    // Arrow head size
+    // Arrow head size scaled to the width
     final arrowHeadSize = size.width * 0.02;
 
     // Draw the arrowhead
     final arrowHeadPath = Path();
     arrowHeadPath.moveTo(arrowEndX, arrowEndY);
-    arrowHeadPath.lineTo(
-      arrowEndX - arrowHeadSize,
-      arrowEndY - arrowHeadSize / 2,
-    );
-    arrowHeadPath.lineTo(
-      arrowEndX - arrowHeadSize,
-      arrowEndY + arrowHeadSize / 2,
-    );
+    arrowHeadPath.lineTo(arrowEndX - arrowHeadSize, arrowEndY - arrowHeadSize);
+    arrowHeadPath.lineTo(arrowEndX - arrowHeadSize, arrowEndY + arrowHeadSize);
     arrowHeadPath.close();
     canvas.drawPath(
       arrowHeadPath,
@@ -107,23 +148,8 @@ class ArrowPainter extends CustomPainter {
         ..style = PaintingStyle.fill,
     );
 
-    // Calculate text size based on box dimensions
-    // Adaptive text sizing - scale text based on box dimensions
-    double adaptiveTextSize = (boxWidth * 0.09).clamp(10.0, 20.0);
-    if (text.length > 20) {
-      // Reduce text size for longer text
-      adaptiveTextSize *= 0.8;
-    }
-
-    // Configure text style and paragraph
-    final textStyle = ui.TextStyle(
-      color: textColor,
-      fontSize: adaptiveTextSize,
-      fontWeight: FontWeight.normal,
-    );
-
-    // Use paragraph builder for multiline text support
-    final paragraphBuilder = ui.ParagraphBuilder(
+    // Create final paragraph for actual drawing, properly constrained to the box width
+    final finalParagraphBuilder = ui.ParagraphBuilder(
       ui.ParagraphStyle(
         textAlign: TextAlign.center,
         maxLines: 10,
@@ -132,21 +158,14 @@ class ArrowPainter extends CustomPainter {
       ),
     )..pushStyle(textStyle);
 
-    // Add count if it's positive
-    if (count > 0) {
-      paragraphBuilder.addText('$count. ');
-    }
+    // Add the actual text content
+    finalParagraphBuilder.addText(contentText.isEmpty ? " " : contentText);
 
-    // Add the main text
-    if (text.isNotEmpty) {
-      paragraphBuilder.addText(text);
-    }
-
-    // Build the paragraph and layout it within the box width
-    final paragraph = paragraphBuilder.build();
+    // Build and layout the paragraph within the box width
+    final paragraph = finalParagraphBuilder.build();
     paragraph.layout(
-      ui.ParagraphConstraints(width: boxWidth - 16),
-    ); // 8px padding on each side
+      ui.ParagraphConstraints(width: boxWidth - 20),
+    ); // Padding for text
 
     // Position the text in the center of the box
     double textX = boxLeft + (boxWidth - paragraph.width) / 2;
