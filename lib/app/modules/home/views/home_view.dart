@@ -388,6 +388,8 @@ class SketchWidget extends StatelessWidget {
                       left: controller.dragDataDrawList[i].x.value,
                       child: Stack(
                         children: [
+                          // Replace the existing Transform.rotate section in your SketchWidget
+                          // inside the GestureDetector for drawings with this:
                           GestureDetector(
                             onPanUpdate: (details) {
                               controller.updateDrawPosition(
@@ -397,7 +399,7 @@ class SketchWidget extends StatelessWidget {
                               );
                             },
                             onLongPress: () {
-                              // Show delete confirmation
+                              // Show delete confirmation dialog
                               showDialog(
                                 context: context,
                                 builder:
@@ -429,13 +431,40 @@ class SketchWidget extends StatelessWidget {
                             child: Transform.rotate(
                               angle:
                                   controller.dragDataDrawList[i].rotation.value,
-                              child: Image.memory(
-                                controller.dragDataDrawList[i].imageBytes,
-                                width:
-                                    controller.dragDataDrawList[i].width.value,
-                                height:
-                                    controller.dragDataDrawList[i].height.value,
-                              ),
+                              child: Obx(() {
+                                final drawModel =
+                                    controller.dragDataDrawList[i];
+
+                                // If rectangular box is enabled
+                                if (drawModel.hasRectangularBox.value) {
+                                  return Container(
+                                    width: drawModel.width.value,
+                                    height: drawModel.height.value,
+                                    padding: EdgeInsets.all(
+                                      drawModel.boxPadding.value,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: drawModel.boxColor.value,
+                                      border: Border.all(
+                                        color: drawModel.borderColor.value,
+                                        width: drawModel.borderWidth.value,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: Image.memory(
+                                      drawModel.imageBytes,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  );
+                                } else {
+                                  // Original image without box
+                                  return Image.memory(
+                                    drawModel.imageBytes,
+                                    width: drawModel.width.value,
+                                    height: drawModel.height.value,
+                                  );
+                                }
+                              }),
                             ),
                           ),
                           if (controller.showControls.value) ...[

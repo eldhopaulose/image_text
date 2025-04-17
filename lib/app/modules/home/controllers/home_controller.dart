@@ -1002,6 +1002,12 @@ class HomeController extends GetxController {
     final RxDouble strokeWidth = 2.0.obs;
     final Rx<Color> strokeColor = Colors.black.obs;
 
+    // New state variables for rectangular box
+    final RxBool enableRectangularBox = true.obs;
+    final Rx<Color> boxColor = Colors.white.obs;
+    final Rx<Color> borderColor = Colors.black.obs;
+    final RxDouble borderWidth = 2.0.obs;
+
     // Define available colors
     final List<Color> availableColors = [
       Colors.black,
@@ -1012,135 +1018,292 @@ class HomeController extends GetxController {
       Colors.purple,
     ];
 
+    // Define available background colors
+    final List<Color> availableBackgroundColors = [
+      Colors.white,
+      Colors.grey.shade100,
+      Colors.blue.shade50,
+      Colors.pink.shade50,
+      Colors.green.shade50,
+      Colors.yellow.shade50,
+    ];
+
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Add Draw'),
+          title: const Text('Add Drawing'),
           content: Container(
             width: MediaQuery.of(context).size.width * 0.8,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Color selection
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Color: ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(width: 8),
-                      // Display color options as circular buttons
-                      ...availableColors.map(
-                        (color) => Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                          child: Obx(
-                            () => GestureDetector(
-                              onTap: () => strokeColor.value = color,
-                              child: Container(
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  color: color,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color:
-                                        strokeColor.value == color
-                                            ? Colors.grey.shade300
-                                            : Colors.transparent,
-                                    width: 3,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Color selection
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Pen Color: ',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(width: 8),
+                        // Display color options as circular buttons
+                        ...availableColors.map(
+                          (color) => Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4.0,
+                            ),
+                            child: Obx(
+                              () => GestureDetector(
+                                onTap: () => strokeColor.value = color,
+                                child: Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    color: color,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color:
+                                          strokeColor.value == color
+                                              ? Colors.grey.shade300
+                                              : Colors.transparent,
+                                      width: 3,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
 
-                // Thickness slider
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
-                    children: [
-                      const Text(
-                        'Thickness: ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Expanded(
-                        child: Obx(
-                          () => Slider(
-                            value: strokeWidth.value,
-                            min: 1.0,
-                            max: 10.0,
-                            divisions: 9,
-                            label: strokeWidth.value.toStringAsFixed(1),
-                            onChanged: (value) => strokeWidth.value = value,
+                  // Thickness slider
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      children: [
+                        const Text(
+                          'Thickness: ',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Expanded(
+                          child: Obx(
+                            () => Slider(
+                              value: strokeWidth.value,
+                              min: 1.0,
+                              max: 10.0,
+                              divisions: 9,
+                              label: strokeWidth.value.toStringAsFixed(1),
+                              onChanged: (value) => strokeWidth.value = value,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
 
-                // Clear button
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          signaturePadKey.currentState?.clear();
-                        },
-                        icon: const Icon(Icons.clear),
-                        label: const Text('Clear'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
+                  // Rectangular box toggle
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Obx(
+                      () => SwitchListTile(
+                        title: const Text(
+                          'Add Rectangular Box',
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
+                        value: enableRectangularBox.value,
+                        onChanged:
+                            (value) => enableRectangularBox.value = value,
+                        contentPadding: EdgeInsets.zero,
                       ),
-                    ],
-                  ),
-                ),
-
-                // Signature pad with dynamic settings
-                Container(
-                  height: 200, // Fixed height for better control
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Obx(
-                    () => SfSignaturePad(
-                      key: signaturePadKey,
-                      minimumStrokeWidth: strokeWidth.value / 2,
-                      maximumStrokeWidth: strokeWidth.value,
-                      strokeColor: strokeColor.value,
-                      backgroundColor: Colors.white.withOpacity(0.05),
                     ),
                   ),
-                ),
 
-                // Note about undo
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    "Note: For complex drawings, make changes incrementally and save versions as needed.",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                      fontStyle: FontStyle.italic,
+                  // Box settings - only visible when box is enabled
+                  Obx(() {
+                    if (!enableRectangularBox.value) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Box background color
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            children: [
+                              const Text(
+                                'Box Color: ',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(width: 8),
+                              // Display background color options
+                              ...availableBackgroundColors.map(
+                                (color) => Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4.0,
+                                  ),
+                                  child: Obx(
+                                    () => GestureDetector(
+                                      onTap: () => boxColor.value = color,
+                                      child: Container(
+                                        width: 24,
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          color: color,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color:
+                                                boxColor.value == color
+                                                    ? Colors.grey.shade300
+                                                    : Colors.transparent,
+                                            width: 3,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Border color
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            children: [
+                              const Text(
+                                'Border Color: ',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(width: 8),
+                              // Display border color options
+                              ...availableColors.map(
+                                (color) => Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4.0,
+                                  ),
+                                  child: Obx(
+                                    () => GestureDetector(
+                                      onTap: () => borderColor.value = color,
+                                      child: Container(
+                                        width: 24,
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          color: color,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color:
+                                                borderColor.value == color
+                                                    ? Colors.grey.shade300
+                                                    : Colors.transparent,
+                                            width: 3,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Border width slider
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            children: [
+                              const Text(
+                                'Border Width: ',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Expanded(
+                                child: Obx(
+                                  () => Slider(
+                                    value: borderWidth.value,
+                                    min: 1.0,
+                                    max: 5.0,
+                                    divisions: 4,
+                                    label: borderWidth.value.toStringAsFixed(1),
+                                    onChanged:
+                                        (value) => borderWidth.value = value,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+
+                  // Clear button
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            signaturePadKey.currentState?.clear();
+                          },
+                          icon: const Icon(Icons.clear),
+                          label: const Text('Clear'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                ),
-              ],
+
+                  // Signature pad with dynamic settings
+                  Container(
+                    height: 200, // Fixed height for better control
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                      color:
+                          enableRectangularBox.value
+                              ? boxColor.value.withOpacity(0.1)
+                              : Colors.white.withOpacity(0.05),
+                    ),
+                    child: Obx(
+                      () => SfSignaturePad(
+                        key: signaturePadKey,
+                        minimumStrokeWidth: strokeWidth.value / 2,
+                        maximumStrokeWidth: strokeWidth.value,
+                        strokeColor: strokeColor.value,
+                        backgroundColor: Colors.transparent,
+                      ),
+                    ),
+                  ),
+
+                  // Note about undo
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      "Note: For complex drawings, make changes incrementally and save versions as needed.",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: <Widget>[
@@ -1165,16 +1328,20 @@ class HomeController extends GetxController {
                   if (byteData != null) {
                     final Uint8List pngBytes = byteData.buffer.asUint8List();
 
-                    // Add to controller's drawing list
+                    // Add to controller's drawing list with rectangular box settings
                     dragDataDrawList.add(
                       DrawModel(
                         imageBytes: pngBytes,
                         x: 0,
                         y: 0,
                         width: 300.0, // Default width
-                        height:
-                            200.0, // Default height matches the signature pad
+                        height: 200.0, // Default height
                         rotation: 0.0, // Start with no rotation
+                        hasRectangularBox: enableRectangularBox.value,
+                        boxColor: boxColor.value,
+                        borderColor: borderColor.value,
+                        borderWidth: borderWidth.value,
+                        boxPadding: 10.0, // Fixed padding
                       ),
                     );
 
