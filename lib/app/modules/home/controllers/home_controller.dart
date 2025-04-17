@@ -1410,7 +1410,6 @@ class HomeController extends GetxController {
                 ),
 
                 pw.SizedBox(height: 10),
-
                 // Quality check section
                 pw.Table(
                   border: pw.TableBorder.all(),
@@ -1505,86 +1504,152 @@ class HomeController extends GetxController {
                     ),
                   ],
                 ),
+                pw.SizedBox(height: 10),
 
-                // Bottom table
-                pw.Table(
-                  border: pw.TableBorder.all(),
-                  columnWidths: {
-                    0: const pw.FlexColumnWidth(1),
-                    1: const pw.FlexColumnWidth(1),
-                    2: const pw.FlexColumnWidth(1),
-                    3: const pw.FlexColumnWidth(1),
-                    4: const pw.FlexColumnWidth(0.5),
-                    5: const pw.FlexColumnWidth(0.5),
-                    6: const pw.FlexColumnWidth(0.5),
-                    7: const pw.FlexColumnWidth(1),
-                  },
+                // Quality check section
+                pw.Row(
                   children: [
-                    pw.TableRow(
+                    pw.Column(
                       children: [
-                        pw.Padding(
+                        pw.Container(
+                          width: 88,
+                          height: 15,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
                           padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('TOP / BOTTOM'),
-                        ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('SLEEVE'),
-                        ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('YOKE'),
-                        ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
                           child: pw.Text(
-                            'PIPNG',
-                            style: pw.TextStyle(color: PdfColors.blue),
+                            'TOP / BOTTOM',
+                            style: noramlTextStyle,
                           ),
                         ),
-                        pw.Column(
-                          children: [
-                            pw.Padding(
-                              padding: const pw.EdgeInsets.all(2),
-                              child: pw.Text('Top'),
-                            ),
-                          ],
-                        ),
-                        pw.Column(
-                          children: [
-                            pw.Padding(
-                              padding: const pw.EdgeInsets.all(2),
-                              child: pw.Text('Yoke'),
-                            ),
-                          ],
-                        ),
-                        pw.Column(
-                          children: [
-                            pw.Padding(
-                              padding: const pw.EdgeInsets.all(2),
-                              child: pw.Text('Sleeve'),
-                            ),
-                          ],
-                        ),
-                        pw.Padding(
+                        pw.Container(
+                          width: 88,
+                          height: 50,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
                           padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('OTHERS'),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.SizedBox(),
                         ),
                       ],
                     ),
-                    pw.TableRow(
+                    pw.Column(
                       children: [
-                        pw.Container(height: 30),
-                        pw.Container(height: 30),
-                        pw.Container(height: 30),
-                        pw.Container(height: 30),
-                        pw.Container(height: 30),
-                        pw.Container(height: 30),
-                        pw.Container(height: 30),
-                        pw.Container(height: 30),
+                        pw.Container(
+                          width: 88,
+                          height: 15,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.Text(
+                            'TOP / BOTTOM',
+                            style: noramlTextStyle,
+                          ),
+                        ),
+                        pw.Container(
+                          width: 88,
+                          height: 50,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.SizedBox(),
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      children: [
+                        pw.Container(
+                          width: 88,
+                          height: 15,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.Text(
+                            'TOP / BOTTOM',
+                            style: noramlTextStyle,
+                          ),
+                        ),
+                        pw.Container(
+                          width: 88,
+                          height: 50,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.SizedBox(),
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      children: [
+                        pw.Container(
+                          width: 88,
+                          height: 15,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.Text(
+                            'TOP / BOTTOM',
+                            style: noramlTextStyle,
+                          ),
+                        ),
+                        pw.Container(
+                          width: 88,
+                          height: 50,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.SizedBox(),
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      children: [
+                        pw.Container(
+                          width: 120,
+                          height: 15,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.Text(
+                            'TOP / BOTTOM',
+                            style: noramlTextStyle,
+                          ),
+                        ),
+                        pw.Container(
+                          width: 120,
+                          height: 50,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.SizedBox(),
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      children: [
+                        pw.Container(
+                          width: 88,
+                          height: 15,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.Text(
+                            'TOP / BOTTOM',
+                            style: noramlTextStyle,
+                          ),
+                        ),
+                        pw.Container(
+                          width: 88,
+                          height: 50,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.SizedBox(),
+                        ),
                       ],
                     ),
                   ],
                 ),
+                // Bottom table
 
                 // Footer
                 pw.SizedBox(height: 10),
