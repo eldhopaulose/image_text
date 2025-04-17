@@ -793,9 +793,12 @@ class HomeController extends GetxController {
                           children: [
                             pw.Padding(
                               padding: const pw.EdgeInsets.all(4),
-                              child: pw.Text('Description'),
+                              child: pw.Text(
+                                'Description',
+                                style: noramlTextStyle,
+                              ),
                             ),
-                            pw.Container(height: 30),
+                            pw.Container(),
                           ],
                         ),
                       ],
@@ -810,47 +813,176 @@ class HomeController extends GetxController {
                   children: [
                     // Left column - measurements
                     pw.Expanded(
-                      flex: 3,
+                      flex: 2,
                       child: pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
                           // Top row with length measurements
-                          pw.Container(
-                            decoration: pw.BoxDecoration(
-                              border: pw.Border.all(),
-                            ),
-                            child: pw.Row(
-                              children: [
-                                pw.Container(
-                                  width: 60,
-                                  height: 40,
-                                  decoration: pw.BoxDecoration(
-                                    border: pw.Border.all(),
+                          pw.Row(
+                            children: [
+                              pw.Row(
+                                children: [
+                                  pw.Container(
+                                    width: 45,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.Column(
+                                      mainAxisAlignment:
+                                          pw.MainAxisAlignment.center,
+                                      children: [
+                                        pw.Text('Top', style: noramlTextStyle),
+                                        pw.Text(
+                                          'Length',
+                                          style: noramlTextStyle,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  padding: const pw.EdgeInsets.all(2),
-                                  child: pw.Column(
-                                    mainAxisAlignment:
-                                        pw.MainAxisAlignment.center,
-                                    children: [
-                                      pw.Text('Top'),
-                                      pw.Text('Length'),
-                                    ],
+                                  // Create empty measurement cells
+                                  pw.Container(
+                                    width: 45,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
                                   ),
-                                ),
-                                // Create empty measurement cells
-                                ...List.generate(
-                                  8,
-                                  (index) => pw.Container(
+                                ],
+                              ),
+                              pw.SizedBox(width: 10),
+
+                              pw.Row(
+                                children: [
+                                  pw.Container(
                                     width: 40,
                                     height: 40,
                                     decoration: pw.BoxDecoration(
                                       border: pw.Border.all(),
                                     ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
                                   ),
-                                ),
-                              ],
-                            ),
+                                  // Create empty measurement cells
+                                  pw.Container(
+                                    width: 45,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                  pw.Container(
+                                    width: 60,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                ],
+                              ),
+                              pw.SizedBox(width: 10),
+
+                              pw.Row(
+                                children: [
+                                  pw.Container(
+                                    width: 45,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                  // Create empty measurement cells
+                                  pw.Container(
+                                    width: 50,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                ],
+                              ),
+                              pw.SizedBox(width: 10),
+
+                              pw.Row(
+                                children: [
+                                  pw.Container(
+                                    width: 45,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                  pw.Column(
+                                    children: [
+                                      pw.Container(
+                                        width: 50,
+                                        height: 20,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                      pw.Container(
+                                        width: 50,
+                                        height: 20,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                    ],
+                                  ),
+                                  pw.Column(
+                                    children: [
+                                      pw.Container(
+                                        width: 50,
+                                        height: 20,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                      pw.Container(
+                                        width: 50,
+                                        height: 20,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                    ],
+                                  ),
+                                  pw.Container(
+                                    width: 50,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
+
                           pw.SizedBox(height: 5),
 
                           // Sleeve No section
@@ -1029,37 +1161,37 @@ class HomeController extends GetxController {
                       ),
                     ),
 
-                    // Right column - function
-                    pw.Expanded(
-                      flex: 2,
-                      child: pw.Column(
-                        children: [
-                          pw.Table(
-                            border: pw.TableBorder.all(),
-                            children: [
-                              pw.TableRow(
-                                children: [
-                                  pw.Padding(
-                                    padding: const pw.EdgeInsets.all(4),
-                                    child: pw.Text('FUNCTION'),
-                                  ),
-                                  pw.Padding(
-                                    padding: const pw.EdgeInsets.all(4),
-                                    child: pw.Text('OTHERS'),
-                                  ),
-                                ],
-                              ),
-                              pw.TableRow(
-                                children: [
-                                  pw.Container(height: 100),
-                                  pw.Container(height: 100),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                    // // Right column - function
+                    // pw.Expanded(
+                    //   flex: 2,
+                    //   child: pw.Column(
+                    //     children: [
+                    //       pw.Table(
+                    //         border: pw.TableBorder.all(),
+                    //         children: [
+                    //           pw.TableRow(
+                    //             children: [
+                    //               pw.Padding(
+                    //                 padding: const pw.EdgeInsets.all(4),
+                    //                 child: pw.Text('FUNCTION'),
+                    //               ),
+                    //               pw.Padding(
+                    //                 padding: const pw.EdgeInsets.all(4),
+                    //                 child: pw.Text('OTHERS'),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //           pw.TableRow(
+                    //             children: [
+                    //               pw.Container(height: 100),
+                    //               pw.Container(height: 100),
+                    //             ],
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
 
