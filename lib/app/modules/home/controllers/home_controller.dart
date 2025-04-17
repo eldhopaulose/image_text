@@ -657,6 +657,8 @@ class HomeController extends GetxController {
       final pdf = pw.Document();
 
       final noramlTextStyle = pw.TextStyle(fontSize: 10);
+      final noramlTextStyle8 = pw.TextStyle(fontSize: 8);
+
       // Add the job card page
       pdf.addPage(
         pw.Page(
@@ -1280,7 +1282,7 @@ class HomeController extends GetxController {
                                     children: [
                                       pw.Container(
                                         width: 50,
-                                        height: 30,
+                                        height: 32,
                                         decoration: pw.BoxDecoration(
                                           border: pw.Border.all(),
                                         ),
@@ -1301,21 +1303,57 @@ class HomeController extends GetxController {
                                               border: pw.Border.all(),
                                             ),
                                             padding: const pw.EdgeInsets.all(4),
-                                            alignment: pw.Alignment.center,
+                                            alignment: pw.Alignment.topCenter,
                                             child: pw.Text(
                                               'AR',
-                                              style: noramlTextStyle,
+                                              style: noramlTextStyle8,
                                             ),
                                           ),
                                           pw.Container(
                                             width: 50,
-                                            height: 18,
+                                            height: 20,
                                             decoration: pw.BoxDecoration(
                                               border: pw.Border.all(),
                                             ),
                                             padding: const pw.EdgeInsets.all(4),
                                             child: pw.SizedBox(),
                                           ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              pw.SizedBox(width: 10),
+                              pw.Column(
+                                children: [
+                                  pw.SizedBox(height: 14),
+
+                                  pw.Table(
+                                    border: pw.TableBorder.all(),
+                                    children: [
+                                      pw.TableRow(
+                                        children: [
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.Text(
+                                              'FUNCTION',
+                                              style: noramlTextStyle8,
+                                            ),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.Text(
+                                              'OTHERS',
+                                              style: noramlTextStyle8,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      pw.TableRow(
+                                        children: [
+                                          pw.Container(height: 15),
+                                          pw.Container(height: 15),
                                         ],
                                       ),
                                     ],
@@ -1335,10 +1373,10 @@ class HomeController extends GetxController {
                       child: pw.Column(
                         children: [
                           // Add spacing to prevent top overlap
-                          pw.SizedBox(height: 100),
+                          pw.SizedBox(height: 130),
 
                           pw.Container(
-                            height: 370, // Reduced height
+                            height: 380, // Reduced height
                             decoration: pw.BoxDecoration(
                               border: pw.Border.all(color: PdfColors.grey200),
                             ),
@@ -1349,8 +1387,8 @@ class HomeController extends GetxController {
                                       child: pw.Center(
                                         child: pw.ClipRect(
                                           child: pw.SizedBox(
-                                            width: 270, // Slightly reduced
-                                            height: 360, // Slightly reduced
+                                            width: 240, // Slightly reduced
+                                            height: 380, // Slightly reduced
                                             child: pw.FittedBox(
                                               fit: pw.BoxFit.contain,
                                               child: pw.Image(
@@ -1368,38 +1406,6 @@ class HomeController extends GetxController {
                         ],
                       ),
                     ),
-
-                    // // Right column - function
-                    // pw.Expanded(
-                    //   flex: 2,
-                    //   child: pw.Column(
-                    //     children: [
-                    //       pw.Table(
-                    //         border: pw.TableBorder.all(),
-                    //         children: [
-                    //           pw.TableRow(
-                    //             children: [
-                    //               pw.Padding(
-                    //                 padding: const pw.EdgeInsets.all(4),
-                    //                 child: pw.Text('FUNCTION'),
-                    //               ),
-                    //               pw.Padding(
-                    //                 padding: const pw.EdgeInsets.all(4),
-                    //                 child: pw.Text('OTHERS'),
-                    //               ),
-                    //             ],
-                    //           ),
-                    //           pw.TableRow(
-                    //             children: [
-                    //               pw.Container(height: 100),
-                    //               pw.Container(height: 100),
-                    //             ],
-                    //           ),
-                    //         ],
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
                   ],
                 ),
 
@@ -1424,56 +1430,56 @@ class HomeController extends GetxController {
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
                           child: pw.Text(
-                            'QC Design',
+                            'DT. Design',
                             style: pw.TextStyle(fontSize: 8),
                           ),
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
                           child: pw.Text(
-                            'QC Verified',
+                            'DT. Verified',
                             style: pw.TextStyle(fontSize: 8),
                           ),
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
                           child: pw.Text(
-                            'QC Cutting',
+                            'DT. Cutting',
                             style: pw.TextStyle(fontSize: 8),
                           ),
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
                           child: pw.Text(
-                            'QC Stitching',
+                            'DT. Stitching',
                             style: pw.TextStyle(fontSize: 8),
                           ),
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
                           child: pw.Text(
-                            'QC Inspection',
+                            'DT. Inspection',
                             style: pw.TextStyle(fontSize: 8),
                           ),
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
                           child: pw.Text(
-                            'QC Hemming',
+                            'DT. Hemming',
                             style: pw.TextStyle(fontSize: 8),
                           ),
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
                           child: pw.Text(
-                            'QC Ironing',
+                            'DT. Ironing',
                             style: pw.TextStyle(fontSize: 8),
                           ),
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
                           child: pw.Text(
-                            'QC Delivered',
+                            'DT. Delivered',
                             style: pw.TextStyle(fontSize: 8),
                           ),
                         ),
