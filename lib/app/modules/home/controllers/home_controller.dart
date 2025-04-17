@@ -650,32 +650,595 @@ class HomeController extends GetxController {
 
   Future<File?> generatePDF() async {
     isGeratePdfLoading.value = true;
+    await widgetImage();
     File? pdfFile;
     try {
-      // First capture the widget image
-      await widgetImage();
-
       // Create PDF document
       final pdf = pw.Document();
 
-      // Add the image page first - full page
-      if (bytes != null) {
-        pdf.addPage(
-          pw.Page(
-            pageFormat: PdfPageFormat.a4,
-            build: (pw.Context context) {
-              return pw.Center(
-                child: pw.Image(
-                  pw.MemoryImage(bytes!),
-                  width: PdfPageFormat.a4.availableWidth,
-                  height: PdfPageFormat.a4.availableHeight,
-                  fit: pw.BoxFit.contain,
+      // Add the job card page
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(20),
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Header section
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Container(
+                      padding: const pw.EdgeInsets.all(4),
+                      decoration: pw.BoxDecoration(border: pw.Border.all()),
+                      child: pw.Text(
+                        'DESIGN JOB CARD',
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                      ),
+                    ),
+                    pw.Container(
+                      padding: const pw.EdgeInsets.all(4),
+                      decoration: pw.BoxDecoration(border: pw.Border.all()),
+                      child: pw.Text(
+                        'CHURIDAR - 1',
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                      ),
+                    ),
+                    pw.BarcodeWidget(
+                      data: '2080425CH1',
+                      barcode: pw.Barcode.code128(),
+                      width: 150,
+                      height: 30,
+                    ),
+                    pw.Container(
+                      padding: const pw.EdgeInsets.all(4),
+                      decoration: pw.BoxDecoration(border: pw.Border.all()),
+                      child: pw.Text('08-Apr-2025'),
+                    ),
+                  ],
                 ),
-              );
-            },
-          ),
-        );
-      }
+                pw.SizedBox(height: 5),
+
+                // Job ID
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(4),
+                  decoration: pw.BoxDecoration(border: pw.Border.all()),
+                  child: pw.Text('T45935'),
+                ),
+                pw.SizedBox(height: 5),
+
+                // Customer information table
+                pw.Table(
+                  border: pw.TableBorder.all(),
+                  columnWidths: {
+                    0: const pw.FlexColumnWidth(1),
+                    1: const pw.FlexColumnWidth(3),
+                  },
+                  children: [
+                    // Name row
+                    pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('Name'),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('JILTA JOBY.PALLIPPARAMBIL'),
+                        ),
+                      ],
+                    ),
+                    // Order No and Due Date row
+                    pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('Order No'),
+                        ),
+                        pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text('2080425CH1'),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text('Due. Date'),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text('25-Apr-2025'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    // Fabric row
+                    pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('FAB'),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('CHIFFON'),
+                        ),
+                      ],
+                    ),
+                    // Description row
+                    pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('Description'),
+                        ),
+                        pw.Container(height: 30),
+                      ],
+                    ),
+                  ],
+                ),
+                pw.SizedBox(height: 10),
+
+                // Measurements section
+                pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    // Left column - measurements
+                    pw.Expanded(
+                      flex: 3,
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          // Top row with length measurements
+                          pw.Container(
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(),
+                            ),
+                            child: pw.Row(
+                              children: [
+                                pw.Container(
+                                  width: 60,
+                                  height: 40,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.Column(
+                                    mainAxisAlignment:
+                                        pw.MainAxisAlignment.center,
+                                    children: [
+                                      pw.Text('Top'),
+                                      pw.Text('Length'),
+                                    ],
+                                  ),
+                                ),
+                                // Create empty measurement cells
+                                ...List.generate(
+                                  8,
+                                  (index) => pw.Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          pw.SizedBox(height: 5),
+
+                          // Sleeve No section
+                          pw.Row(
+                            children: [
+                              pw.Container(
+                                width: 100,
+                                height: 40,
+                                decoration: pw.BoxDecoration(
+                                  border: pw.Border.all(),
+                                ),
+                                padding: const pw.EdgeInsets.all(4),
+                                child: pw.Center(child: pw.Text('Sleeve No')),
+                              ),
+                              pw.Container(
+                                width: 100,
+                                height: 40,
+                                decoration: pw.BoxDecoration(
+                                  border: pw.Border.all(),
+                                ),
+                                padding: const pw.EdgeInsets.all(4),
+                                child: pw.Center(
+                                  child: pw.Text('Sleeve Lining\nNo'),
+                                ),
+                              ),
+                              pw.Container(
+                                width: 50,
+                                height: 40,
+                                decoration: pw.BoxDecoration(
+                                  border: pw.Border.all(),
+                                ),
+                                padding: const pw.EdgeInsets.all(4),
+                                child: pw.Center(child: pw.Text('READY')),
+                              ),
+                              ...List.generate(
+                                3,
+                                (index) => pw.Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          pw.SizedBox(height: 5),
+
+                          // Remarks section
+                          pw.Row(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Container(
+                                width: 60,
+                                height: 20,
+                                padding: const pw.EdgeInsets.all(2),
+                                child: pw.Text('Remarks:'),
+                              ),
+                            ],
+                          ),
+                          pw.Container(
+                            width: 150,
+                            height: 100,
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(),
+                            ),
+                          ),
+
+                          // FLAIR section
+                          pw.Container(
+                            width: 150,
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(),
+                            ),
+                            child: pw.Column(
+                              children: [
+                                pw.Container(
+                                  width: 150,
+                                  padding: const pw.EdgeInsets.all(4),
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border(bottom: pw.BorderSide()),
+                                  ),
+                                  child: pw.Center(child: pw.Text('FLAIR')),
+                                ),
+                                ...List.generate(
+                                  10,
+                                  (index) => pw.Container(
+                                    width: 150,
+                                    height: 20,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border(
+                                        bottom: pw.BorderSide(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          pw.SizedBox(height: 5),
+
+                          // MODEL section
+                          pw.Row(
+                            children: [
+                              pw.Container(
+                                width: 70,
+                                height: 30,
+                                decoration: pw.BoxDecoration(
+                                  border: pw.Border.all(),
+                                ),
+                                padding: const pw.EdgeInsets.all(4),
+                                child: pw.Column(
+                                  mainAxisAlignment:
+                                      pw.MainAxisAlignment.center,
+                                  children: [pw.Text('MODEL'), pw.Text('SM')],
+                                ),
+                              ),
+                              pw.SizedBox(width: 10),
+                              pw.Container(
+                                width: 70,
+                                height: 30,
+                                decoration: pw.BoxDecoration(
+                                  border: pw.Border.all(),
+                                ),
+                                padding: const pw.EdgeInsets.all(4),
+                                child: pw.Column(
+                                  mainAxisAlignment:
+                                      pw.MainAxisAlignment.center,
+                                  children: [pw.Text('AR')],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Middle column - design image
+                    // MODIFIED SECTION TO FIX OVERLAPPING
+                    pw.Expanded(
+                      flex: 5,
+                      child: pw.Column(
+                        children: [
+                          // Add spacing to prevent top overlap
+                          pw.SizedBox(height: 100),
+
+                          pw.Container(
+                            height: 370, // Reduced height
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(color: PdfColors.grey200),
+                            ),
+                            child:
+                                bytes != null
+                                    ? pw.Padding(
+                                      padding: const pw.EdgeInsets.all(5),
+                                      child: pw.Center(
+                                        child: pw.ClipRect(
+                                          child: pw.SizedBox(
+                                            width: 270, // Slightly reduced
+                                            height: 360, // Slightly reduced
+                                            child: pw.FittedBox(
+                                              fit: pw.BoxFit.contain,
+                                              child: pw.Image(
+                                                pw.MemoryImage(bytes!),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    : pw.Center(
+                                      child: pw.Text('No image available'),
+                                    ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Right column - function
+                    pw.Expanded(
+                      flex: 2,
+                      child: pw.Column(
+                        children: [
+                          pw.Table(
+                            border: pw.TableBorder.all(),
+                            children: [
+                              pw.TableRow(
+                                children: [
+                                  pw.Padding(
+                                    padding: const pw.EdgeInsets.all(4),
+                                    child: pw.Text('FUNCTION'),
+                                  ),
+                                  pw.Padding(
+                                    padding: const pw.EdgeInsets.all(4),
+                                    child: pw.Text('OTHERS'),
+                                  ),
+                                ],
+                              ),
+                              pw.TableRow(
+                                children: [
+                                  pw.Container(height: 100),
+                                  pw.Container(height: 100),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                pw.SizedBox(height: 10),
+
+                // Quality check section
+                pw.Table(
+                  border: pw.TableBorder.all(),
+                  columnWidths: {
+                    0: const pw.FlexColumnWidth(1),
+                    1: const pw.FlexColumnWidth(1),
+                    2: const pw.FlexColumnWidth(1),
+                    3: const pw.FlexColumnWidth(1),
+                    4: const pw.FlexColumnWidth(1),
+                    5: const pw.FlexColumnWidth(1),
+                    6: const pw.FlexColumnWidth(1),
+                    7: const pw.FlexColumnWidth(1),
+                  },
+                  children: [
+                    pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'QC Design',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'QC Verified',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'QC Cutting',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'QC Stitching',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'QC Inspection',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'QC Hemming',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'QC Ironing',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'QC Delivered',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'ANITTAMOL',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Container(height: 20),
+                        pw.Container(height: 20),
+                        pw.Container(height: 20),
+                        pw.Container(height: 20),
+                        pw.Container(height: 20),
+                        pw.Container(height: 20),
+                        pw.Container(height: 20),
+                      ],
+                    ),
+                  ],
+                ),
+
+                // Bottom table
+                pw.Table(
+                  border: pw.TableBorder.all(),
+                  columnWidths: {
+                    0: const pw.FlexColumnWidth(1),
+                    1: const pw.FlexColumnWidth(1),
+                    2: const pw.FlexColumnWidth(1),
+                    3: const pw.FlexColumnWidth(1),
+                    4: const pw.FlexColumnWidth(0.5),
+                    5: const pw.FlexColumnWidth(0.5),
+                    6: const pw.FlexColumnWidth(0.5),
+                    7: const pw.FlexColumnWidth(1),
+                  },
+                  children: [
+                    pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('TOP / BOTTOM'),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('SLEEVE'),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('YOKE'),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(
+                            'PIPNG',
+                            style: pw.TextStyle(color: PdfColors.blue),
+                          ),
+                        ),
+                        pw.Column(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(2),
+                              child: pw.Text('Top'),
+                            ),
+                          ],
+                        ),
+                        pw.Column(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(2),
+                              child: pw.Text('Yoke'),
+                            ),
+                          ],
+                        ),
+                        pw.Column(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(2),
+                              child: pw.Text('Sleeve'),
+                            ),
+                          ],
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('OTHERS'),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Container(height: 30),
+                        pw.Container(height: 30),
+                        pw.Container(height: 30),
+                        pw.Container(height: 30),
+                        pw.Container(height: 30),
+                        pw.Container(height: 30),
+                        pw.Container(height: 30),
+                        pw.Container(height: 30),
+                      ],
+                    ),
+                  ],
+                ),
+
+                // Footer
+                pw.SizedBox(height: 10),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text(
+                      '08-Apr-2025     2:12 pm',
+                      style: pw.TextStyle(fontSize: 8),
+                    ),
+                    pw.Text('Page 1 of 1', style: pw.TextStyle(fontSize: 8)),
+                    pw.Text(
+                      'ORDER BY BENITTAJ',
+                      style: pw.TextStyle(fontSize: 8),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
+      );
 
       // Add details page with shape contents
       pdf.addPage(
@@ -690,7 +1253,7 @@ class HomeController extends GetxController {
                 pw.SizedBox(height: 20),
 
                 // Create a table with arrow box and rectangle details
-                pw.Table.fromTextArray(
+                pw.TableHelper.fromTextArray(
                   border: pw.TableBorder.all(),
                   headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                   headerDecoration: const pw.BoxDecoration(
@@ -780,15 +1343,17 @@ class HomeController extends GetxController {
 
       // Save the PDF to a temporary file with specific filename
       final tempDir = await getTemporaryDirectory();
-      pdfFile = File('${tempDir.path}/shape_diagram.pdf');
+      pdfFile = File('${tempDir.path}/design_job_card.pdf');
       await pdfFile.writeAsBytes(pdfBytes);
 
       log('PDF saved to: ${pdfFile.path}');
+
       // Show printing dialog
       await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => pdfBytes,
-        name: 'Shape Diagram',
+        name: 'Design Job Card',
       );
+
       return pdfFile;
     } catch (e) {
       log('Error generating PDF: $e');
