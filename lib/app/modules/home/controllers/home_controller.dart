@@ -656,6 +656,7 @@ class HomeController extends GetxController {
       // Create PDF document
       final pdf = pw.Document();
 
+      final noramlTextStyle = pw.TextStyle(fontSize: 10);
       // Add the job card page
       pdf.addPage(
         pw.Page(
@@ -712,70 +713,91 @@ class HomeController extends GetxController {
                 pw.Table(
                   border: pw.TableBorder.all(),
                   columnWidths: {
-                    0: const pw.FlexColumnWidth(1),
+                    0: const pw.FlexColumnWidth(3),
                     1: const pw.FlexColumnWidth(3),
                   },
                   children: [
                     // Name row
                     pw.TableRow(
                       children: [
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('Name'),
-                        ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('JILTA JOBY.PALLIPPARAMBIL'),
-                        ),
-                      ],
-                    ),
-                    // Order No and Due Date row
-                    pw.TableRow(
-                      children: [
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('Order No'),
+                        pw.Row(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text('Name', style: noramlTextStyle),
+                            ),
+                            pw.SizedBox(width: 5),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text(
+                                'JILTA JOBY.PALLIPPARAMBIL',
+                                style: noramlTextStyle,
+                              ),
+                            ),
+                          ],
                         ),
                         pw.Row(
                           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                           children: [
                             pw.Padding(
                               padding: const pw.EdgeInsets.all(4),
-                              child: pw.Text('2080425CH1'),
+                              child: pw.Text(
+                                'Order No',
+                                style: noramlTextStyle,
+                              ),
                             ),
                             pw.Padding(
                               padding: const pw.EdgeInsets.all(4),
-                              child: pw.Text('Due. Date'),
+                              child: pw.Text(
+                                '2080425CH1',
+                                style: noramlTextStyle,
+                              ),
                             ),
                             pw.Padding(
                               padding: const pw.EdgeInsets.all(4),
-                              child: pw.Text('25-Apr-2025'),
+                              child: pw.Text(
+                                'Due. Date',
+                                style: noramlTextStyle,
+                              ),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text(
+                                '25-Apr-2025',
+                                style: noramlTextStyle,
+                              ),
                             ),
                           ],
                         ),
                       ],
                     ),
+
                     // Fabric row
                     pw.TableRow(
                       children: [
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('FAB'),
+                        pw.Row(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text('FAB', style: noramlTextStyle),
+                            ),
+                            pw.SizedBox(width: 5),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text('CHIFFON', style: noramlTextStyle),
+                            ),
+                          ],
                         ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('CHIFFON'),
+                        pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text('Description'),
+                            ),
+                            pw.Container(height: 30),
+                          ],
                         ),
-                      ],
-                    ),
-                    // Description row
-                    pw.TableRow(
-                      children: [
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('Description'),
-                        ),
-                        pw.Container(height: 30),
                       ],
                     ),
                   ],
