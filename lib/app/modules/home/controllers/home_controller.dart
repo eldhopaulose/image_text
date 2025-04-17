@@ -1582,13 +1582,53 @@ class HomeController extends GetxController {
                           alignment: pw.Alignment.topCenter,
                           child: pw.Text('PIPING', style: noramlTextStyle),
                         ),
-                        pw.Container(
-                          width: 88,
-                          height: 50,
-                          decoration: pw.BoxDecoration(border: pw.Border.all()),
-                          padding: const pw.EdgeInsets.all(4),
-                          alignment: pw.Alignment.topCenter,
-                          child: pw.SizedBox(),
+                        pw.Row(
+                          children: [
+                            pw.Column(
+                              children: [
+                                pw.Container(
+                                  width: 44,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                                pw.Container(
+                                  width: 44,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              children: [
+                                pw.Container(
+                                  width: 44,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                                pw.Container(
+                                  width: 44,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -1602,13 +1642,88 @@ class HomeController extends GetxController {
                           alignment: pw.Alignment.topCenter,
                           child: pw.Text('LINING', style: noramlTextStyle),
                         ),
-                        pw.Container(
-                          width: 120,
-                          height: 50,
-                          decoration: pw.BoxDecoration(border: pw.Border.all()),
-                          padding: const pw.EdgeInsets.all(4),
-                          alignment: pw.Alignment.topCenter,
-                          child: pw.SizedBox(),
+                        pw.Row(
+                          children: [
+                            pw.Column(
+                              children: [
+                                pw.Container(
+                                  width: 40,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  alignment: pw.Alignment.center,
+                                  child: pw.Text(
+                                    'Top',
+                                    style: noramlTextStyle8,
+                                  ),
+                                ),
+                                pw.Container(
+                                  width: 40,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              children: [
+                                pw.Container(
+                                  width: 40,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  alignment: pw.Alignment.center,
+                                  child: pw.Text(
+                                    'Yoke',
+                                    style: noramlTextStyle8,
+                                  ),
+                                ),
+                                pw.Container(
+                                  width: 40,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              children: [
+                                pw.Container(
+                                  width: 40,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  alignment: pw.Alignment.center,
+
+                                  child: pw.Text(
+                                    'Sleeve',
+                                    style: noramlTextStyle8,
+                                  ),
+                                ),
+                                pw.Container(
+                                  width: 40,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ],
                     ),
