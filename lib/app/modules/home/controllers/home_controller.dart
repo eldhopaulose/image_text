@@ -1540,10 +1540,7 @@ class HomeController extends GetxController {
                           decoration: pw.BoxDecoration(border: pw.Border.all()),
                           padding: const pw.EdgeInsets.all(4),
                           alignment: pw.Alignment.topCenter,
-                          child: pw.Text(
-                            'TOP / BOTTOM',
-                            style: noramlTextStyle,
-                          ),
+                          child: pw.Text('SLEEVE', style: noramlTextStyle),
                         ),
                         pw.Container(
                           width: 88,
@@ -1563,10 +1560,7 @@ class HomeController extends GetxController {
                           decoration: pw.BoxDecoration(border: pw.Border.all()),
                           padding: const pw.EdgeInsets.all(4),
                           alignment: pw.Alignment.topCenter,
-                          child: pw.Text(
-                            'TOP / BOTTOM',
-                            style: noramlTextStyle,
-                          ),
+                          child: pw.Text('YOKE', style: noramlTextStyle),
                         ),
                         pw.Container(
                           width: 88,
@@ -1586,10 +1580,7 @@ class HomeController extends GetxController {
                           decoration: pw.BoxDecoration(border: pw.Border.all()),
                           padding: const pw.EdgeInsets.all(4),
                           alignment: pw.Alignment.topCenter,
-                          child: pw.Text(
-                            'TOP / BOTTOM',
-                            style: noramlTextStyle,
-                          ),
+                          child: pw.Text('PIPING', style: noramlTextStyle),
                         ),
                         pw.Container(
                           width: 88,
@@ -1609,10 +1600,7 @@ class HomeController extends GetxController {
                           decoration: pw.BoxDecoration(border: pw.Border.all()),
                           padding: const pw.EdgeInsets.all(4),
                           alignment: pw.Alignment.topCenter,
-                          child: pw.Text(
-                            'TOP / BOTTOM',
-                            style: noramlTextStyle,
-                          ),
+                          child: pw.Text('LINING', style: noramlTextStyle),
                         ),
                         pw.Container(
                           width: 120,
@@ -1632,10 +1620,7 @@ class HomeController extends GetxController {
                           decoration: pw.BoxDecoration(border: pw.Border.all()),
                           padding: const pw.EdgeInsets.all(4),
                           alignment: pw.Alignment.topCenter,
-                          child: pw.Text(
-                            'TOP / BOTTOM',
-                            style: noramlTextStyle,
-                          ),
+                          child: pw.Text('OTHERS', style: noramlTextStyle),
                         ),
                         pw.Container(
                           width: 88,
