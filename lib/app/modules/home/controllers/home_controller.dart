@@ -1145,7 +1145,10 @@ class HomeController extends GetxController {
                                 width: 60,
                                 height: 20,
                                 padding: const pw.EdgeInsets.all(2),
-                                child: pw.Text('Remarks:'),
+                                child: pw.Text(
+                                  'Remarks:',
+                                  style: noramlTextStyle,
+                                ),
                               ),
                             ],
                           ),
@@ -1156,6 +1159,7 @@ class HomeController extends GetxController {
                               border: pw.Border.all(),
                             ),
                           ),
+                          pw.SizedBox(height: 10),
 
                           // FLAIR section
                           pw.Container(
@@ -1174,7 +1178,7 @@ class HomeController extends GetxController {
                                   child: pw.Center(child: pw.Text('FLAIR')),
                                 ),
                                 ...List.generate(
-                                  10,
+                                  5,
                                   (index) => pw.Container(
                                     width: 150,
                                     height: 20,
@@ -1183,6 +1187,59 @@ class HomeController extends GetxController {
                                         bottom: pw.BorderSide(),
                                       ),
                                     ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          pw.SizedBox(height: 10),
+                          pw.Container(
+                            width: 150,
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(),
+                            ),
+                            child: pw.Column(
+                              children: [
+                                ...List.generate(
+                                  3,
+                                  (index) => pw.Container(
+                                    width: 150,
+                                    height: 20,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border(
+                                        bottom: pw.BorderSide(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          pw.SizedBox(height: 10),
+                          pw.Container(
+                            width: 150,
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(),
+                            ),
+                            child: pw.Column(
+                              children: [
+                                ...List.generate(
+                                  1,
+                                  (index) => pw.Container(
+                                    width: 150,
+                                    height: 20,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border(
+                                        bottom: pw.BorderSide(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                pw.Container(
+                                  width: 150,
+                                  height: 100,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
                                   ),
                                 ),
                               ],
