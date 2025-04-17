@@ -1178,7 +1178,7 @@ class HomeController extends GetxController {
                                   child: pw.Center(child: pw.Text('FLAIR')),
                                 ),
                                 ...List.generate(
-                                  5,
+                                  3,
                                   (index) => pw.Container(
                                     width: 150,
                                     height: 20,
@@ -1201,7 +1201,7 @@ class HomeController extends GetxController {
                             child: pw.Column(
                               children: [
                                 ...List.generate(
-                                  3,
+                                  2,
                                   (index) => pw.Container(
                                     width: 150,
                                     height: 20,
@@ -1250,32 +1250,77 @@ class HomeController extends GetxController {
                           // MODEL section
                           pw.Row(
                             children: [
-                              pw.Container(
-                                width: 70,
-                                height: 30,
-                                decoration: pw.BoxDecoration(
-                                  border: pw.Border.all(),
-                                ),
-                                padding: const pw.EdgeInsets.all(4),
-                                child: pw.Column(
-                                  mainAxisAlignment:
-                                      pw.MainAxisAlignment.center,
-                                  children: [pw.Text('MODEL'), pw.Text('SM')],
-                                ),
+                              pw.Column(
+                                children: [
+                                  pw.Text('MODEL', style: noramlTextStyle),
+                                  pw.SizedBox(height: 2),
+
+                                  pw.Container(
+                                    width: 50,
+                                    height: 30,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(4),
+                                    alignment: pw.Alignment.center,
+                                    child: pw.Text(
+                                      'SM',
+                                      style: noramlTextStyle,
+                                    ),
+                                  ),
+                                ],
                               ),
+
                               pw.SizedBox(width: 10),
-                              pw.Container(
-                                width: 70,
-                                height: 30,
-                                decoration: pw.BoxDecoration(
-                                  border: pw.Border.all(),
-                                ),
-                                padding: const pw.EdgeInsets.all(4),
-                                child: pw.Column(
-                                  mainAxisAlignment:
-                                      pw.MainAxisAlignment.center,
-                                  children: [pw.Text('AR')],
-                                ),
+
+                              pw.Column(
+                                children: [
+                                  pw.SizedBox(height: 14),
+                                  pw.Row(
+                                    children: [
+                                      pw.Container(
+                                        width: 50,
+                                        height: 30,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(4),
+                                        alignment: pw.Alignment.center,
+                                        child: pw.Text(
+                                          'SM',
+                                          style: noramlTextStyle,
+                                        ),
+                                      ),
+
+                                      pw.Column(
+                                        children: [
+                                          pw.Container(
+                                            width: 50,
+                                            height: 12,
+                                            decoration: pw.BoxDecoration(
+                                              border: pw.Border.all(),
+                                            ),
+                                            padding: const pw.EdgeInsets.all(4),
+                                            alignment: pw.Alignment.center,
+                                            child: pw.Text(
+                                              'AR',
+                                              style: noramlTextStyle,
+                                            ),
+                                          ),
+                                          pw.Container(
+                                            width: 50,
+                                            height: 18,
+                                            decoration: pw.BoxDecoration(
+                                              border: pw.Border.all(),
+                                            ),
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.SizedBox(),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ],
                           ),
