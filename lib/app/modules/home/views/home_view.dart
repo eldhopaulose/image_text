@@ -75,13 +75,46 @@ class HomeView extends GetView<HomeController> {
                   ),
                 ),
 
-                ElevatedButton.icon(
-                  onPressed: () => editorController.openImageEditor(context),
-                  icon: const Icon(Icons.draw),
-                  label: const Text('OR Edit Image'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
+                Obx(
+                  () => ElevatedButton(
+                    onPressed:
+                        controller.isGeratePdfLoading.value
+                            ? null // Disable button while loading
+                            : () => controller.showPrintConfirmation(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      // Add some padding for better appearance
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                    ),
+                    child:
+                        controller.isGeratePdfLoading.value
+                            ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Text('Generating...'),
+                              ],
+                            )
+                            : Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(Icons.print),
+                                SizedBox(height: 4),
+                                Text('Print Document'),
+                              ],
+                            ),
                   ),
                 ),
                 SizedBox(width: 60),

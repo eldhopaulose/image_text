@@ -227,129 +227,6 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<File?> generatePDF() async {
-    isGeratePdfLoading.value = true;
-    File? pdfFile;
-    try {
-      // First capture the widget image
-      await widgetImage();
-
-      // Create PDF document
-      final pdf = pw.Document();
-
-      // Add the image page first - full page
-      if (bytes != null) {
-        pdf.addPage(
-          pw.Page(
-            pageFormat: PdfPageFormat.a4,
-            build: (pw.Context context) {
-              return pw.Center(
-                child: pw.Image(
-                  pw.MemoryImage(bytes!),
-                  width: PdfPageFormat.a4.availableWidth,
-                  height: PdfPageFormat.a4.availableHeight,
-                  fit: pw.BoxFit.contain,
-                ),
-              );
-            },
-          ),
-        );
-      }
-
-      // Add details page with arrow box text contents
-      pdf.addPage(
-        pw.Page(
-          pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.all(32),
-          build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Header(level: 1, text: 'Arrow Box Contents'),
-                pw.SizedBox(height: 20),
-
-                // Create a table with arrow box details
-                pw.Table.fromTextArray(
-                  border: pw.TableBorder.all(),
-                  headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                  headerDecoration: const pw.BoxDecoration(
-                    color: PdfColors.grey300,
-                  ),
-                  cellAlignments: {
-                    0: pw.Alignment.center,
-                    1: pw.Alignment.centerLeft,
-                  },
-                  headers: ['Box #', 'Content'],
-                  data:
-                      dragDataList.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final box = entry.value;
-                        return [
-                          '${box.count.value}',
-                          box.title.value.isEmpty ? '(empty)' : box.title.value,
-                        ];
-                      }).toList(),
-                ),
-              ],
-            );
-          },
-        ),
-      );
-
-      // Add notes on a separate page
-      pdf.addPage(
-        pw.Page(
-          pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.all(32),
-          build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Header(level: 1, text: 'Notes'),
-                pw.SizedBox(height: 20),
-                pw.Container(
-                  height: notes.value.isNotEmpty ? null : 500,
-                  width: double.infinity,
-                  padding: const pw.EdgeInsets.all(10),
-                  decoration: pw.BoxDecoration(
-                    border: pw.Border.all(color: PdfColors.grey400),
-                    borderRadius: const pw.BorderRadius.all(
-                      pw.Radius.circular(5),
-                    ),
-                  ),
-                  child:
-                      notes.value.isNotEmpty
-                          ? pw.Text(notes.value)
-                          : pw.Container(),
-                ),
-              ],
-            );
-          },
-        ),
-      );
-
-      final pdfBytes = await pdf.save();
-
-      // Save the PDF to a temporary file with specific filename
-      final tempDir = await getTemporaryDirectory();
-      pdfFile = File('${tempDir.path}/arrow_box_document.pdf');
-      await pdfFile.writeAsBytes(pdfBytes);
-
-      log('PDF saved to: ${pdfFile.path}');
-      // Show printing dialog
-      await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => pdfBytes,
-        name: 'Arrow Box Document',
-      );
-      return pdfFile;
-    } catch (e) {
-      log('Error generating PDF: $e');
-      return null;
-    } finally {
-      isGeratePdfLoading.value = false;
-    }
-  }
-
   // Method to update notes
   void updateNotes(String newNotes) {
     notes.value = newNotes;
@@ -716,5 +593,1251 @@ class HomeController extends GetxController {
         );
       },
     );
+  }
+
+  void showPrintConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Printing'),
+          content: const Text('Are you sure you want to print this document?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Start the PDF generation process
+                generatePDF();
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.green),
+              child: const Text('Print'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<File?> generatePDF() async {
+    isGeratePdfLoading.value = true;
+    await widgetImage();
+    File? pdfFile;
+    try {
+      // Create PDF document
+      final pdf = pw.Document();
+
+      final noramlTextStyle = pw.TextStyle(fontSize: 10);
+      final noramlTextStyle8 = pw.TextStyle(fontSize: 8);
+
+      // Add the job card page
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(20),
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Header section
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Container(
+                      padding: const pw.EdgeInsets.all(4),
+                      decoration: pw.BoxDecoration(border: pw.Border.all()),
+                      child: pw.Text(
+                        'DESIGN JOB CARD',
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                      ),
+                    ),
+                    pw.Container(
+                      padding: const pw.EdgeInsets.all(4),
+                      decoration: pw.BoxDecoration(border: pw.Border.all()),
+                      child: pw.Text(
+                        'CHURIDAR - 1',
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                      ),
+                    ),
+                    pw.BarcodeWidget(
+                      data: '2080425CH1',
+                      barcode: pw.Barcode.code128(),
+                      width: 150,
+                      height: 30,
+                    ),
+                    pw.Container(
+                      padding: const pw.EdgeInsets.all(4),
+                      decoration: pw.BoxDecoration(border: pw.Border.all()),
+                      child: pw.Text('08-Apr-2025'),
+                    ),
+                  ],
+                ),
+                pw.SizedBox(height: 5),
+
+                // Job ID
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(4),
+                  decoration: pw.BoxDecoration(border: pw.Border.all()),
+                  child: pw.Text('T45935'),
+                ),
+                pw.SizedBox(height: 5),
+
+                // Customer information table
+                pw.Table(
+                  border: pw.TableBorder.all(),
+                  columnWidths: {
+                    0: const pw.FlexColumnWidth(3),
+                    1: const pw.FlexColumnWidth(3),
+                  },
+                  children: [
+                    // Name row
+                    pw.TableRow(
+                      children: [
+                        pw.Row(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text('Name', style: noramlTextStyle),
+                            ),
+                            pw.SizedBox(width: 5),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text(
+                                'JILTA JOBY.PALLIPPARAMBIL',
+                                style: noramlTextStyle,
+                              ),
+                            ),
+                          ],
+                        ),
+                        pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text(
+                                'Order No',
+                                style: noramlTextStyle,
+                              ),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text(
+                                '2080425CH1',
+                                style: noramlTextStyle,
+                              ),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text(
+                                'Due. Date',
+                                style: noramlTextStyle,
+                              ),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text(
+                                '25-Apr-2025',
+                                style: noramlTextStyle,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                    // Fabric row
+                    pw.TableRow(
+                      children: [
+                        pw.Row(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text('FAB', style: noramlTextStyle),
+                            ),
+                            pw.SizedBox(width: 5),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text('CHIFFON', style: noramlTextStyle),
+                            ),
+                          ],
+                        ),
+                        pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text(
+                                'Description',
+                                style: noramlTextStyle,
+                              ),
+                            ),
+                            pw.Container(),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                pw.SizedBox(height: 10),
+
+                // Measurements section
+                pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    // Left column - measurements
+                    pw.Expanded(
+                      flex: 2,
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          // Top row with length measurements
+                          pw.Row(
+                            children: [
+                              pw.Row(
+                                children: [
+                                  pw.Container(
+                                    width: 45,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.Column(
+                                      mainAxisAlignment:
+                                          pw.MainAxisAlignment.center,
+                                      children: [
+                                        pw.Text('Top', style: noramlTextStyle),
+                                        pw.Text(
+                                          'Length',
+                                          style: noramlTextStyle,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // Create empty measurement cells
+                                  pw.Container(
+                                    width: 45,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                ],
+                              ),
+                              pw.SizedBox(width: 10),
+
+                              pw.Row(
+                                children: [
+                                  pw.Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                  // Create empty measurement cells
+                                  pw.Container(
+                                    width: 45,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                  pw.Container(
+                                    width: 60,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                ],
+                              ),
+                              pw.SizedBox(width: 10),
+
+                              pw.Row(
+                                children: [
+                                  pw.Container(
+                                    width: 45,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                  // Create empty measurement cells
+                                  pw.Container(
+                                    width: 50,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                ],
+                              ),
+                              pw.SizedBox(width: 10),
+
+                              pw.Row(
+                                children: [
+                                  pw.Container(
+                                    width: 45,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                  pw.Column(
+                                    children: [
+                                      pw.Container(
+                                        width: 50,
+                                        height: 20,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                      pw.Container(
+                                        width: 50,
+                                        height: 20,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                    ],
+                                  ),
+                                  pw.Column(
+                                    children: [
+                                      pw.Container(
+                                        width: 50,
+                                        height: 20,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                      pw.Container(
+                                        width: 50,
+                                        height: 20,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                    ],
+                                  ),
+                                  pw.Container(
+                                    width: 50,
+                                    height: 40,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
+                          pw.SizedBox(height: 5),
+
+                          // Sleeve No section
+                          pw.Row(
+                            children: [
+                              pw.Row(
+                                children: [
+                                  pw.Column(
+                                    children: [
+                                      pw.Container(
+                                        width: 45,
+                                        height: 30,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.Column(
+                                          mainAxisAlignment:
+                                              pw.MainAxisAlignment.center,
+                                          children: [
+                                            pw.Text(
+                                              'Sleave',
+                                              style: noramlTextStyle,
+                                            ),
+                                            pw.Text(
+                                              'No',
+                                              style: noramlTextStyle,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      pw.Container(
+                                        width: 45,
+                                        height: 30,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                    ],
+                                  ),
+                                  // Create empty measurement cells
+                                  pw.Container(
+                                    height: 60,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(5),
+                                    child: pw.Column(
+                                      mainAxisAlignment:
+                                          pw.MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          pw.CrossAxisAlignment.center,
+                                      children: [
+                                        pw.Text(
+                                          "Sleeve Lining",
+                                          style: noramlTextStyle,
+                                        ),
+                                        pw.Text("No", style: noramlTextStyle),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              pw.SizedBox(width: 10),
+                              pw.Row(
+                                children: [
+                                  pw.Container(
+                                    height: 60,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(5),
+                                    alignment: pw.Alignment.center,
+                                    child: pw.Text(
+                                      "READY",
+                                      style: noramlTextStyle,
+                                    ),
+                                  ),
+                                  // Create empty measurement cells
+                                  pw.Container(
+                                    width: 45,
+                                    height: 60,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                  pw.Container(
+                                    width: 45,
+                                    height: 60,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                ],
+                              ),
+                              pw.SizedBox(width: 10),
+                              pw.Row(
+                                children: [
+                                  pw.Column(
+                                    children: [
+                                      pw.Container(
+                                        width: 142.5,
+                                        height: 30,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                      pw.Container(
+                                        width: 142.5,
+                                        height: 30,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                    ],
+                                  ),
+                                  pw.Column(
+                                    children: [
+                                      pw.Container(
+                                        width: 142.5,
+                                        height: 30,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                      pw.Container(
+                                        width: 142.5,
+                                        height: 30,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          pw.SizedBox(height: 5),
+
+                          // Remarks section
+                          pw.Row(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Container(
+                                width: 60,
+                                height: 20,
+                                padding: const pw.EdgeInsets.all(2),
+                                child: pw.Text(
+                                  'Remarks:',
+                                  style: noramlTextStyle,
+                                ),
+                              ),
+                            ],
+                          ),
+                          pw.Container(
+                            width: 150,
+                            height: 100,
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(),
+                            ),
+                          ),
+                          pw.SizedBox(height: 10),
+
+                          // FLAIR section
+                          pw.Container(
+                            width: 150,
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(),
+                            ),
+                            child: pw.Column(
+                              children: [
+                                pw.Container(
+                                  width: 150,
+                                  padding: const pw.EdgeInsets.all(4),
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border(bottom: pw.BorderSide()),
+                                  ),
+                                  child: pw.Center(child: pw.Text('FLAIR')),
+                                ),
+                                ...List.generate(
+                                  3,
+                                  (index) => pw.Container(
+                                    width: 150,
+                                    height: 20,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border(
+                                        bottom: pw.BorderSide(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          pw.SizedBox(height: 10),
+                          pw.Container(
+                            width: 150,
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(),
+                            ),
+                            child: pw.Column(
+                              children: [
+                                ...List.generate(
+                                  2,
+                                  (index) => pw.Container(
+                                    width: 150,
+                                    height: 20,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border(
+                                        bottom: pw.BorderSide(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          pw.SizedBox(height: 10),
+                          pw.Container(
+                            width: 150,
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(),
+                            ),
+                            child: pw.Column(
+                              children: [
+                                ...List.generate(
+                                  1,
+                                  (index) => pw.Container(
+                                    width: 150,
+                                    height: 20,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border(
+                                        bottom: pw.BorderSide(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                pw.Container(
+                                  width: 150,
+                                  height: 100,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          pw.SizedBox(height: 5),
+
+                          // MODEL section
+                          pw.Row(
+                            children: [
+                              pw.Column(
+                                children: [
+                                  pw.Text('MODEL', style: noramlTextStyle),
+                                  pw.SizedBox(height: 2),
+
+                                  pw.Container(
+                                    width: 50,
+                                    height: 30,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(4),
+                                    alignment: pw.Alignment.center,
+                                    child: pw.Text(
+                                      'SM',
+                                      style: noramlTextStyle,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              pw.SizedBox(width: 10),
+
+                              pw.Column(
+                                children: [
+                                  pw.SizedBox(height: 14),
+                                  pw.Row(
+                                    children: [
+                                      pw.Container(
+                                        width: 50,
+                                        height: 32,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(4),
+                                        alignment: pw.Alignment.center,
+                                        child: pw.Text(
+                                          'SM',
+                                          style: noramlTextStyle,
+                                        ),
+                                      ),
+
+                                      pw.Column(
+                                        children: [
+                                          pw.Container(
+                                            width: 50,
+                                            height: 12,
+                                            decoration: pw.BoxDecoration(
+                                              border: pw.Border.all(),
+                                            ),
+                                            padding: const pw.EdgeInsets.all(4),
+                                            alignment: pw.Alignment.topCenter,
+                                            child: pw.Text(
+                                              'AR',
+                                              style: noramlTextStyle8,
+                                            ),
+                                          ),
+                                          pw.Container(
+                                            width: 50,
+                                            height: 20,
+                                            decoration: pw.BoxDecoration(
+                                              border: pw.Border.all(),
+                                            ),
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.SizedBox(),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              pw.SizedBox(width: 10),
+                              pw.Column(
+                                children: [
+                                  pw.SizedBox(height: 14),
+
+                                  pw.Table(
+                                    border: pw.TableBorder.all(),
+                                    children: [
+                                      pw.TableRow(
+                                        children: [
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.Text(
+                                              'FUNCTION',
+                                              style: noramlTextStyle8,
+                                            ),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.Text(
+                                              'OTHERS',
+                                              style: noramlTextStyle8,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      pw.TableRow(
+                                        children: [
+                                          pw.Container(height: 15),
+                                          pw.Container(height: 15),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Middle column - design image
+                    // MODIFIED SECTION TO FIX OVERLAPPING
+                    pw.Expanded(
+                      flex: 5,
+                      child: pw.Column(
+                        children: [
+                          // Add spacing to prevent top overlap
+                          pw.SizedBox(height: 130),
+
+                          pw.Container(
+                            height: 380, // Reduced height
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(color: PdfColors.grey200),
+                            ),
+                            child:
+                                bytes != null
+                                    ? pw.Padding(
+                                      padding: const pw.EdgeInsets.all(5),
+                                      child: pw.Center(
+                                        child: pw.ClipRect(
+                                          child: pw.SizedBox(
+                                            width: 240, // Slightly reduced
+                                            height: 380, // Slightly reduced
+                                            child: pw.FittedBox(
+                                              fit: pw.BoxFit.contain,
+                                              child: pw.Image(
+                                                pw.MemoryImage(bytes!),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    : pw.Center(
+                                      child: pw.Text('No image available'),
+                                    ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                pw.SizedBox(height: 10),
+                // Quality check section
+                pw.Table(
+                  border: pw.TableBorder.all(),
+                  columnWidths: {
+                    0: const pw.FlexColumnWidth(1),
+                    1: const pw.FlexColumnWidth(1),
+                    2: const pw.FlexColumnWidth(1),
+                    3: const pw.FlexColumnWidth(1),
+                    4: const pw.FlexColumnWidth(1),
+                    5: const pw.FlexColumnWidth(1),
+                    6: const pw.FlexColumnWidth(1),
+                    7: const pw.FlexColumnWidth(1),
+                  },
+                  children: [
+                    pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'DT. Design',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'DT. Verified',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'DT. Cutting',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'DT. Stitching',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'DT. Inspection',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'DT. Hemming',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'DT. Ironing',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'DT. Delivered',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                            'ANITTAMOL',
+                            style: pw.TextStyle(fontSize: 8),
+                          ),
+                        ),
+                        pw.Container(height: 20),
+                        pw.Container(height: 20),
+                        pw.Container(height: 20),
+                        pw.Container(height: 20),
+                        pw.Container(height: 20),
+                        pw.Container(height: 20),
+                        pw.Container(height: 20),
+                      ],
+                    ),
+                  ],
+                ),
+                pw.SizedBox(height: 10),
+
+                // Quality check section
+                pw.Row(
+                  children: [
+                    pw.Column(
+                      children: [
+                        pw.Container(
+                          width: 88,
+                          height: 15,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.Text(
+                            'TOP / BOTTOM',
+                            style: noramlTextStyle,
+                          ),
+                        ),
+                        pw.Container(
+                          width: 88,
+                          height: 50,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.SizedBox(),
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      children: [
+                        pw.Container(
+                          width: 88,
+                          height: 15,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.Text('SLEEVE', style: noramlTextStyle),
+                        ),
+                        pw.Container(
+                          width: 88,
+                          height: 50,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.SizedBox(),
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      children: [
+                        pw.Container(
+                          width: 88,
+                          height: 15,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.Text('YOKE', style: noramlTextStyle),
+                        ),
+                        pw.Container(
+                          width: 88,
+                          height: 50,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.SizedBox(),
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      children: [
+                        pw.Container(
+                          width: 88,
+                          height: 15,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.Text('PIPING', style: noramlTextStyle),
+                        ),
+                        pw.Row(
+                          children: [
+                            pw.Column(
+                              children: [
+                                pw.Container(
+                                  width: 44,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                                pw.Container(
+                                  width: 44,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              children: [
+                                pw.Container(
+                                  width: 44,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                                pw.Container(
+                                  width: 44,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      children: [
+                        pw.Container(
+                          width: 120,
+                          height: 15,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.Text('LINING', style: noramlTextStyle),
+                        ),
+                        pw.Row(
+                          children: [
+                            pw.Column(
+                              children: [
+                                pw.Container(
+                                  width: 40,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  alignment: pw.Alignment.center,
+                                  child: pw.Text(
+                                    'Top',
+                                    style: noramlTextStyle8,
+                                  ),
+                                ),
+                                pw.Container(
+                                  width: 40,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              children: [
+                                pw.Container(
+                                  width: 40,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  alignment: pw.Alignment.center,
+                                  child: pw.Text(
+                                    'Yoke',
+                                    style: noramlTextStyle8,
+                                  ),
+                                ),
+                                pw.Container(
+                                  width: 40,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              children: [
+                                pw.Container(
+                                  width: 40,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  alignment: pw.Alignment.center,
+
+                                  child: pw.Text(
+                                    'Sleeve',
+                                    style: noramlTextStyle8,
+                                  ),
+                                ),
+                                pw.Container(
+                                  width: 40,
+                                  height: 25,
+                                  decoration: pw.BoxDecoration(
+                                    border: pw.Border.all(),
+                                  ),
+                                  padding: const pw.EdgeInsets.all(2),
+                                  child: pw.SizedBox(),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      children: [
+                        pw.Container(
+                          width: 88,
+                          height: 15,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.Text('OTHERS', style: noramlTextStyle),
+                        ),
+                        pw.Container(
+                          width: 88,
+                          height: 50,
+                          decoration: pw.BoxDecoration(border: pw.Border.all()),
+                          padding: const pw.EdgeInsets.all(4),
+                          alignment: pw.Alignment.topCenter,
+                          child: pw.SizedBox(),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                // Bottom table
+
+                // Footer
+                pw.SizedBox(height: 10),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text(
+                      '08-Apr-2025     2:12 pm',
+                      style: pw.TextStyle(fontSize: 8),
+                    ),
+                    pw.Text('Page 1 of 1', style: pw.TextStyle(fontSize: 8)),
+                    pw.Text(
+                      'ORDER BY BENITTAJ',
+                      style: pw.TextStyle(fontSize: 8),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
+      // // Add details page with arrow box text contents
+      // pdf.addPage(
+      //   pw.Page(
+      //     pageFormat: PdfPageFormat.a4,
+      //     margin: const pw.EdgeInsets.all(32),
+      //     build: (pw.Context context) {
+      //       return pw.Column(
+      //         crossAxisAlignment: pw.CrossAxisAlignment.start,
+      //         children: [
+      //           pw.Header(level: 1, text: 'Arrow Box Contents'),
+      //           pw.SizedBox(height: 20),
+
+      //           // Create a table with arrow box details
+      //           pw.Table.fromTextArray(
+      //             border: pw.TableBorder.all(),
+      //             headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+      //             headerDecoration: const pw.BoxDecoration(
+      //               color: PdfColors.grey300,
+      //             ),
+      //             cellAlignments: {
+      //               0: pw.Alignment.center,
+      //               1: pw.Alignment.centerLeft,
+      //             },
+      //             headers: ['Box #', 'Content'],
+      //             data:
+      //                 dragDataList.asMap().entries.map((entry) {
+      //                   final index = entry.key;
+      //                   final box = entry.value;
+      //                   return [
+      //                     '${box.count.value}',
+      //                     box.title.value.isEmpty ? '(empty)' : box.title.value,
+      //                   ];
+      //                 }).toList(),
+      //           ),
+      //         ],
+      //       );
+      //     },
+      //   ),
+      // );
+
+      // // Add notes on a separate page
+      // pdf.addPage(
+      //   pw.Page(
+      //     pageFormat: PdfPageFormat.a4,
+      //     margin: const pw.EdgeInsets.all(32),
+      //     build: (pw.Context context) {
+      //       return pw.Column(
+      //         crossAxisAlignment: pw.CrossAxisAlignment.start,
+      //         children: [
+      //           pw.Header(level: 1, text: 'Notes'),
+      //           pw.SizedBox(height: 20),
+      //           pw.Container(
+      //             height: notes.value.isNotEmpty ? null : 500,
+      //             width: double.infinity,
+      //             padding: const pw.EdgeInsets.all(10),
+      //             decoration: pw.BoxDecoration(
+      //               border: pw.Border.all(color: PdfColors.grey400),
+      //               borderRadius: const pw.BorderRadius.all(
+      //                 pw.Radius.circular(5),
+      //               ),
+      //             ),
+      //             child:
+      //                 notes.value.isNotEmpty
+      //                     ? pw.Text(notes.value)
+      //                     : pw.Container(),
+      //           ),
+      //         ],
+      //       );
+      //     },
+      //   ),
+      // );
+
+      final pdfBytes = await pdf.save();
+
+      // Save the PDF to a temporary file with specific filename
+      final tempDir = await getTemporaryDirectory();
+      pdfFile = File('${tempDir.path}/arrow_box_document.pdf');
+      await pdfFile.writeAsBytes(pdfBytes);
+
+      log('PDF saved to: ${pdfFile.path}');
+      // Show printing dialog
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdfBytes,
+        name: 'Arrow Box Document',
+      );
+      return pdfFile;
+    } catch (e) {
+      log('Error generating PDF: $e');
+      return null;
+    } finally {
+      isGeratePdfLoading.value = false;
+    }
   }
 }
