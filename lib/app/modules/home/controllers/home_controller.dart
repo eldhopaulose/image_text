@@ -988,44 +988,150 @@ class HomeController extends GetxController {
                           // Sleeve No section
                           pw.Row(
                             children: [
-                              pw.Container(
-                                width: 100,
-                                height: 40,
-                                decoration: pw.BoxDecoration(
-                                  border: pw.Border.all(),
-                                ),
-                                padding: const pw.EdgeInsets.all(4),
-                                child: pw.Center(child: pw.Text('Sleeve No')),
-                              ),
-                              pw.Container(
-                                width: 100,
-                                height: 40,
-                                decoration: pw.BoxDecoration(
-                                  border: pw.Border.all(),
-                                ),
-                                padding: const pw.EdgeInsets.all(4),
-                                child: pw.Center(
-                                  child: pw.Text('Sleeve Lining\nNo'),
-                                ),
-                              ),
-                              pw.Container(
-                                width: 50,
-                                height: 40,
-                                decoration: pw.BoxDecoration(
-                                  border: pw.Border.all(),
-                                ),
-                                padding: const pw.EdgeInsets.all(4),
-                                child: pw.Center(child: pw.Text('READY')),
-                              ),
-                              ...List.generate(
-                                3,
-                                (index) => pw.Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: pw.BoxDecoration(
-                                    border: pw.Border.all(),
+                              pw.Row(
+                                children: [
+                                  pw.Column(
+                                    children: [
+                                      pw.Container(
+                                        width: 45,
+                                        height: 30,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.Column(
+                                          mainAxisAlignment:
+                                              pw.MainAxisAlignment.center,
+                                          children: [
+                                            pw.Text(
+                                              'Sleave',
+                                              style: noramlTextStyle,
+                                            ),
+                                            pw.Text(
+                                              'No',
+                                              style: noramlTextStyle,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      pw.Container(
+                                        width: 45,
+                                        height: 30,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                    ],
                                   ),
-                                ),
+                                  // Create empty measurement cells
+                                  pw.Container(
+                                    height: 60,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(5),
+                                    child: pw.Column(
+                                      mainAxisAlignment:
+                                          pw.MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          pw.CrossAxisAlignment.center,
+                                      children: [
+                                        pw.Text(
+                                          "Sleeve Lining",
+                                          style: noramlTextStyle,
+                                        ),
+                                        pw.Text("No", style: noramlTextStyle),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              pw.SizedBox(width: 10),
+                              pw.Row(
+                                children: [
+                                  pw.Container(
+                                    height: 60,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(5),
+                                    alignment: pw.Alignment.center,
+                                    child: pw.Text(
+                                      "READY",
+                                      style: noramlTextStyle,
+                                    ),
+                                  ),
+                                  // Create empty measurement cells
+                                  pw.Container(
+                                    width: 45,
+                                    height: 60,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                  pw.Container(
+                                    width: 45,
+                                    height: 60,
+                                    decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(),
+                                    ),
+                                    padding: const pw.EdgeInsets.all(2),
+                                    child: pw.SizedBox(),
+                                  ),
+                                ],
+                              ),
+                              pw.SizedBox(width: 10),
+                              pw.Row(
+                                children: [
+                                  pw.Column(
+                                    children: [
+                                      pw.Container(
+                                        width: 142.5,
+                                        height: 30,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                      pw.Container(
+                                        width: 142.5,
+                                        height: 30,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                    ],
+                                  ),
+                                  pw.Column(
+                                    children: [
+                                      pw.Container(
+                                        width: 142.5,
+                                        height: 30,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                      pw.Container(
+                                        width: 142.5,
+                                        height: 30,
+                                        decoration: pw.BoxDecoration(
+                                          border: pw.Border.all(),
+                                        ),
+                                        padding: const pw.EdgeInsets.all(2),
+                                        child: pw.SizedBox(),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ],
                           ),
