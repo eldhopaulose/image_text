@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
@@ -174,6 +175,12 @@ class HomeController extends GetxController {
   void removeItem(int index) {
     if (index < dragDataList.length) {
       dragDataList.removeAt(index);
+    }
+  }
+
+  void removeItemDraw(int index) {
+    if (index < dragDataDrawList.length) {
+      dragDataDrawList.removeAt(index);
     }
   }
 
@@ -1731,7 +1738,7 @@ class HomeController extends GetxController {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text(
-                      '08-Apr-2025     2:12 pm',
+                      getCurrentDateTime(),
                       style: pw.TextStyle(fontSize: 8),
                     ),
                     pw.Text('Page 1 of 1', style: pw.TextStyle(fontSize: 8)),
@@ -1838,6 +1845,18 @@ class HomeController extends GetxController {
       return null;
     } finally {
       isGeratePdfLoading.value = false;
+    }
+  }
+
+  String getCurrentDateTime() {
+    try {
+      DateTime now = DateTime.now();
+      final DateFormat formatter = DateFormat('dd-MMM-yyyy     h:mm a');
+      final String formattedDate = formatter.format(now);
+      return formattedDate;
+    } catch (e) {
+      log('Error getting date and time: $e');
+      return 'Error';
     }
   }
 }

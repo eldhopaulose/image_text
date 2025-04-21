@@ -19,10 +19,10 @@ class HomeView extends GetView<HomeController> {
     EditorController editorController = Get.put(EditorController());
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Arrow Box Demo'), centerTitle: true),
+      appBar: AppBar(title: const Text('Job Card'), centerTitle: true),
       floatingActionButton: FloatingActionButton(
         onPressed: () => controller.increment(context),
-        tooltip: 'Add Arrow Box',
+        tooltip: 'Job Card',
         child: const Icon(Icons.add),
       ),
       body: Column(
@@ -55,16 +55,16 @@ class HomeView extends GetView<HomeController> {
                   ),
                 ),
 
-                // Button to add notes
-                ElevatedButton.icon(
-                  onPressed: () => controller.showNotesDialog(context),
-                  icon: const Icon(Icons.note_add),
-                  label: const Text('Add Notes'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
+                // // Button to add notes
+                // ElevatedButton.icon(
+                //   onPressed: () => controller.showNotesDialog(context),
+                //   icon: const Icon(Icons.note_add),
+                //   label: const Text('Add Notes'),
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: Colors.green,
+                //     foregroundColor: Colors.white,
+                //   ),
+                // ),
                 ElevatedButton.icon(
                   onPressed: () => controller.showDrawDialog(context),
                   icon: const Icon(Icons.draw),
@@ -237,7 +237,7 @@ class SketchWidget extends StatelessWidget {
                                         ),
                                         TextButton(
                                           onPressed: () {
-                                            controller.removeItem(i);
+                                            controller.removeItemDraw(i);
                                             Navigator.of(context).pop();
                                           },
                                           child: Text(
